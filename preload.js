@@ -231,25 +231,57 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   
   // ========== 宠物相关 API ==========
-  
+
   // 更新宠物图片
   updatePetImage: (imagePath) => {
     ipcRenderer.send('update-pet-image', imagePath);
   },
-  
+
   // 更新宠物大小
   updatePetSize: (size) => {
     ipcRenderer.send('update-pet-size', size);
   },
-  
+
   // 监听宠物图片更新
   onPetImageUpdated: (callback) => {
     ipcRenderer.on('pet-image-updated', (event, imagePath) => callback(imagePath));
   },
-  
+
   // 监听宠物大小更新
   onPetSizeUpdated: (callback) => {
     ipcRenderer.on('pet-size-updated', (event, size) => callback(size));
+  },
+
+  // ========== 桌面宠物系统 API ==========
+
+  // 获取屏幕尺寸
+  getScreenSize: async () => {
+    return await ipcRenderer.invoke('get-screen-size');
+  },
+
+  // 设置窗口位置
+  setWindowPosition: async (x, y) => {
+    return await ipcRenderer.invoke('set-window-position', { x, y });
+  },
+
+  // 显示右键菜单
+  showContextMenu: async (x, y) => {
+    return await ipcRenderer.invoke('show-context-menu', { x, y });
+  },
+
+  // 获取桌宠心情
+  getPetMood: async () => {
+    return await ipcRenderer.invoke('get-pet-mood');
+  },
+
+  // 设置桌宠心情
+  setPetMood: async (mood) => {
+    return await ipcRenderer.invoke('set-pet-mood', mood);
+  },
+
+  // 监听桌宠动作
+  onPetAction: (callback) => {
+    ipcRenderer.on('pet-action', (event, action) => callback(action));
   },
   
   // ========== 文件/目录选择 API ==========

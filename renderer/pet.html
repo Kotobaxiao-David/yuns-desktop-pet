@@ -16,433 +16,317 @@
       background: transparent;
       width: 100vw;
       height: 100vh;
-      /* 整个窗口可以拖拽 */
-      -webkit-app-region: drag;
-      cursor: move; /* 显示移动光标 */
+      -webkit-app-region: no-drag;
+      cursor: default;
+      user-select: none;
     }
 
-    #pet-container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
+    #pet-canvas {
+      width: 128px;
+      height: 128px;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      cursor: pointer;
     }
 
-    /* 拖拽区域 - 整个容器可拖拽 */
-    #drag-area {
-      position: absolute;
+    /* 点击脉冲效果 */
+    #pet-canvas.pulse {
+      animation: pulse 0.3s ease;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    /* 爱心特效容器 */
+    #particles-container {
+      position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 0;
-      /* 不需要设置 cursor，继承 body 的 */
-    }
-
-    #pet-image {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 60px;
-      box-shadow: 0 8px 20px rgba(255, 152, 0, 0.4);
-      border: 4px solid #FF9800;
-      /* 柴犬可以拖拽，同时支持双击 */
-      -webkit-app-region: drag;
-      cursor: move;
-      position: relative;
-      overflow: hidden;
-      z-index: 1;
-      user-select: none;
-      /* 动态动画 */
-      animation: float 3s ease-in-out infinite, breathe 2s ease-in-out infinite;
-    }
-    
-    /* 悬停提示 */
-    #pet-image:hover {
-      transform: scale(1.05);
-    }
-    
-    /* 柴犬专属样式 */
-    #pet-image.shiba-mode {
-      background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
-      border-color: #FF9800;
-      box-shadow: 0 8px 20px rgba(255, 152, 0, 0.4);
-    }
-    
-    /* 趴着的样式（可选） */
-    #pet-image.lying-down {
-      width: 160px;
-      height: 110px;
-      border-radius: 25px;
-    }
-
-    /* 浮动动画 */
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0px) rotate(0deg);
-      }
-      25% {
-        transform: translateY(-10px) rotate(2deg);
-      }
-      50% {
-        transform: translateY(-5px) rotate(-2deg);
-      }
-      75% {
-        transform: translateY(-12px) rotate(1deg);
-      }
-    }
-
-    /* 呼吸光晕动画 - 柴犬橙色版本 */
-    @keyframes breathe {
-      0%, 100% {
-        box-shadow: 0 8px 20px rgba(255, 152, 0, 0.4),
-                    0 0 0 0 rgba(255, 152, 0, 0.4);
-      }
-      50% {
-        box-shadow: 0 12px 30px rgba(255, 152, 0, 0.6),
-                    0 0 20px 10px rgba(255, 152, 0, 0.2);
-      }
-    }
-    
-    /* 可选：添加爪印装饰 */
-    #pet-container::after {
-      content: '🐾';
-      position: absolute;
-      bottom: -5px;
-      right: -5px;
-      font-size: 24px;
-      opacity: 0.4;
-      z-index: 0;
+      width: 100%;
+      height: 100%;
       pointer-events: none;
-      animation: pawFade 3s ease infinite;
-    }
-    
-    @keyframes pawFade {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 0.5; }
+      z-index: 100;
     }
 
-    #pet-image:hover {
-      animation: float 3s ease-in-out infinite, breathe 2s ease-in-out infinite, pulse 0.5s ease;
+    .heart-particle {
+      position: absolute;
+      font-size: 16px;
+      animation: float-up 1s ease-out forwards;
+      pointer-events: none;
     }
 
-    /* 点击脉冲动画 */
-    @keyframes pulse {
+    @keyframes float-up {
       0% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.15);
+        opacity: 1;
+        transform: translateY(0) scale(1);
       }
       100% {
-        transform: scale(1);
+        opacity: 0;
+        transform: translateY(-60px) scale(0.5);
       }
-    }
-
-    /* 眨眼动画（针对 Emoji） */
-    #pet-emoji {
-      animation: blink 4s infinite;
-    }
-
-    @keyframes blink {
-      0%, 90%, 100% {
-        opacity: 1;
-      }
-      95% {
-        opacity: 0.1;
-      }
-    }
-
-    #pet-image.has-custom-image {
-      background: transparent;
-    }
-
-    #pet-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: none;
-    }
-
-    #pet-image.has-custom-image img {
-      display: block;
-    }
-
-    #pet-image.has-custom-image #pet-emoji {
-      display: none;
-    }
-
-    /* 双击检测层 */
-    #dblclick-layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 10;
-      /* 允许事件穿透，但监听双击 */
-      -webkit-app-region: no-drag;
-      pointer-events: auto;
-      cursor: move;
-    }
-
-    /* 拖拽提示 */
-    #pet-image.drag-over {
-      transform: scale(1.15);
-      box-shadow: 0 0 30px rgba(102, 126, 234, 0.8);
-      border: 3px dashed #fff;
-    }
-
-    #pet-image.drag-over::after {
-      content: '放开图片';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-size: 14px;
-      font-weight: bold;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    }
-
-    /* 右键菜单 */
-    #context-menu {
-      display: none;
-      position: fixed;
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 1000;
-      min-width: 150px;
-      max-width: 180px;
-      -webkit-app-region: no-drag;
-      /* 确保菜单不会超出窗口 */
-      overflow: visible;
-    }
-
-    #context-menu.show {
-      display: block;
-    }
-
-    .menu-item {
-      padding: 10px 15px;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-size: 14px;
-    }
-
-    .menu-item:hover {
-      background: #f5f5f5;
-    }
-
-    .menu-item:first-child {
-      border-radius: 8px 8px 0 0;
-    }
-
-    .menu-item:last-child {
-      border-radius: 0 0 8px 8px;
-    }
-
-    .menu-divider {
-      height: 1px;
-      background: #eee;
-      margin: 5px 0;
     }
   </style>
 </head>
 <body>
-  <div id="pet-container">
-    <!-- 拖拽区域（整个窗口可拖拽） -->
-    <div id="drag-area"></div>
-    
-    <!-- 宠物主体 -->
-    <div id="pet-image" title="双击打开对话">
-      <span id="pet-emoji">🤖</span>
-      <img id="custom-pet-image" alt="宠物">
-      <!-- 双击检测层 -->
-      <div id="dblclick-layer"></div>
-    </div>
-  </div>
+  <canvas id="pet-canvas" width="128" height="128"></canvas>
+  <div id="particles-container"></div>
 
-  <!-- 右键菜单 -->
-  <div id="context-menu">
-    <div class="menu-item" id="menu-chat">💬 打开对话</div>
-    <div class="menu-item" id="menu-settings">⚙️ 设置</div>
-    <div class="menu-divider"></div>
-    <div class="menu-item" id="menu-quit">❌ 退出</div>
-  </div>
-
+  <script src="sprite-generator.js"></script>
+  <script src="pet-animator.js"></script>
+  <script src="mood-system.js"></script>
+  <script src="dialogue-manager.js"></script>
   <script>
-    const petImage = document.getElementById('pet-image');
-    const customImage = document.getElementById('custom-pet-image');
-    const contextMenu = document.getElementById('context-menu');
+    // ========== 初始化桌面宠物系统 ==========
 
-    // 加载保存的宠物图片
-    async function loadSavedPetImage() {
-      const imagePath = await window.electronAPI.storeGet('petImagePath');
-      if (imagePath) {
-        customImage.src = imagePath;
-        petImage.classList.add('has-custom-image');
-      } else {
-        // 默认使用柴犬图片
-        customImage.src = '../assets/shiba.jpg';
-        petImage.classList.add('has-custom-image');
+    const canvas = document.getElementById('pet-canvas');
+    const particlesContainer = document.getElementById('particles-container');
+
+    // 初始化动画系统
+    const animator = new PetAnimator(canvas);
+
+    // 初始化心情系统
+    const moodSystem = new MoodSystem();
+
+    // 初始化对话管理器
+    const dialogueManager = new DialogueManager(animator, moodSystem);
+
+    // ========== 闲逛系统 ==========
+
+    let petX = 0;
+    let petY = 0;
+    let screenWidth = 0;
+    let screenHeight = 0;
+    let moveSpeed = 0.8;
+    let moveDirection = 1; // 1=右, -1=左
+    let isMoving = false;
+    let stateTimer = 0;
+    let moveDuration = 0;
+    let idleDuration = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let petStartX = 0;
+    let petStartY = 0;
+
+    // 获取屏幕尺寸并初始化位置
+    async function initScreen() {
+      if (window.electronAPI) {
+        const size = await window.electronAPI.getScreenSize();
+        screenWidth = size.width;
+        screenHeight = size.height;
+
+        // 初始位置：屏幕底部中央
+        petX = Math.round(screenWidth / 2 - 64);
+        petY = Math.round(screenHeight - 128 - 50);
+
+        updateWindowPosition();
+        scheduleNextAction();
       }
     }
 
-    // 双击检测层
-    const dblclickLayer = document.getElementById('dblclick-layer');
-    
-    // 双击打开对话窗口
-    dblclickLayer.addEventListener('dblclick', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      console.log('双击检测到！');
-      
-      // 添加双击动画
-      petImage.style.animation = 'pulse 0.5s ease';
-      setTimeout(() => {
-        petImage.style.animation = 'float 3s ease-in-out infinite, breathe 2s ease-in-out infinite';
-      }, 500);
-      
-      // 打开AI对话窗口
-      window.electronAPI.openChat();
-    });
-
-    // 右键点击：显示菜单
-    petImage.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      // 计算菜单位置，确保不超出窗口
-      let menuX = e.clientX;
-      let menuY = e.clientY;
-      
-      // 菜单大小约为 150x80
-      const menuWidth = 150;
-      const menuHeight = 80;
-      
-      // 如果右侧空间不够，向左显示
-      if (menuX + menuWidth > window.innerWidth) {
-        menuX = Math.max(5, window.innerWidth - menuWidth - 5);
+    // 更新窗口位置
+    function updateWindowPosition() {
+      if (window.electronAPI) {
+        window.electronAPI.setWindowPosition(Math.round(petX), Math.round(petY));
       }
-      
-      // 如果下方空间不够，向上显示
-      if (menuY + menuHeight > window.innerHeight) {
-        menuY = Math.max(5, window.innerHeight - menuHeight - 5);
+    }
+
+    // 调度下一个动作
+    function scheduleNextAction() {
+      const action = Math.random() > 0.4 ? 'move' : 'idle';
+
+      if (action === 'move') {
+        isMoving = true;
+        moveDuration = 3000 + Math.random() * 5000;
+        moveDirection = Math.random() > 0.5 ? 1 : -1;
+        animator.setState('walk');
+        animator.direction = moveDirection;
+      } else {
+        isMoving = false;
+        idleDuration = 2000 + Math.random() * 4000;
+        animator.setState('idle');
       }
-      
-      contextMenu.style.left = menuX + 'px';
-      contextMenu.style.top = menuY + 'px';
-      contextMenu.classList.add('show');
-    });
 
-    // 点击其他地方关闭菜单
-    document.addEventListener('click', () => {
-      contextMenu.classList.remove('show');
-    });
+      stateTimer = 0;
+    }
 
-    // 菜单项点击
-    document.getElementById('menu-chat').addEventListener('click', () => {
-      window.electronAPI.openChat();
-    });
+    // 更新闲逛位置
+    function updateRoaming() {
+      stateTimer += 16; // ~60fps
 
-    document.getElementById('menu-settings').addEventListener('click', () => {
-      window.electronAPI.openSettings();
-    });
+      if (!isDragging && isMoving) {
+        petX += moveSpeed * moveDirection;
 
-    document.getElementById('menu-quit').addEventListener('click', () => {
-      window.electronAPI.quitApp();
-    });
+        // 边界检测
+        if (petX <= 0) {
+          petX = 0;
+          moveDirection = 1;
+          animator.direction = 1;
+        } else if (petX >= screenWidth - 128) {
+          petX = screenWidth - 128;
+          moveDirection = -1;
+          animator.direction = -1;
+        }
 
-    // 拖拽图片功能 - 禁止默认拖拽，只允许文件拖拽
-    document.addEventListener('dragstart', (e) => {
-      // 阻止页面拖拽
-      e.preventDefault();
-    });
+        updateWindowPosition();
 
-    petImage.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      // 只在拖拽文件时显示提示
-      if (e.dataTransfer.types.includes('Files')) {
-        petImage.classList.add('drag-over');
-      }
-    });
-
-    petImage.addEventListener('dragleave', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      petImage.classList.remove('drag-over');
-    });
-
-    petImage.addEventListener('drop', async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      petImage.classList.remove('drag-over');
-
-      const files = e.dataTransfer.files;
-      if (files && files.length > 0) {
-        const file = files[0];
-        
-        // 检查是否为图片文件
-        if (file.type.startsWith('image/')) {
-          const imagePath = file.path;
-          
-          // 保存图片路径
-          await window.electronAPI.storeSet('petImagePath', imagePath);
-          
-          // 显示图片
-          customImage.src = imagePath;
-          petImage.classList.add('has-custom-image');
-          
-          console.log('宠物图片已更新:', imagePath);
-        } else {
-          alert('请拖拽图片文件（PNG、JPG、GIF等）');
+        if (stateTimer >= moveDuration) {
+          scheduleNextAction();
+        }
+      } else if (!isDragging && !isMoving) {
+        if (stateTimer >= idleDuration) {
+          scheduleNextAction();
         }
       }
-    });
 
-    // 监听宠物图片更新（来自设置页面）
-    window.electronAPI.onPetImageUpdated((imagePath) => {
-      if (imagePath) {
-        customImage.src = imagePath;
-        petImage.classList.add('has-custom-image');
-      } else {
-        // 重置为默认柴犬
-        customImage.src = '../assets/shiba.jpg';
-        petImage.classList.add('has-custom-image');
-      }
-      console.log('收到图片更新:', imagePath || '默认柴犬');
-    });
-    
-    // 监听宠物大小更新（来自设置页面）
-    window.electronAPI.onPetSizeUpdated((imageSize) => {
-      petImage.style.width = imageSize + 'px';
-      petImage.style.height = imageSize + 'px';
-      console.log('收到大小更新:', imageSize);
-    });
-    
-    // 加载保存的宠物大小
-    async function loadSavedPetSize() {
-      const size = await window.electronAPI.storeGet('petSize') || 'medium';
-      const sizes = { small: 150, medium: 200, large: 250 };
-      const imageSize = sizes[size] || 200;
-      petImage.style.width = imageSize + 'px';
-      petImage.style.height = imageSize + 'px';
+      requestAnimationFrame(updateRoaming);
     }
 
-    // 初始化：加载保存的图片和大小
-    loadSavedPetImage();
-    loadSavedPetSize();
+    // ========== 交互系统 ==========
+
+    // 点击互动
+    canvas.addEventListener('click', (e) => {
+      if (isDragging) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+
+      // 摸头区域（上方1/3）
+      if (y < rect.height / 3) {
+        onPetHead();
+      } else {
+        onPetBody();
+      }
+    });
+
+    // 双击打开对话
+    canvas.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      if (window.electronAPI) {
+        window.electronAPI.openChat();
+      }
+    });
+
+    // 右键菜单
+    canvas.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      if (window.electronAPI) {
+        window.electronAPI.showContextMenu(e.clientX, e.clientY);
+      }
+    });
+
+    // 摸头互动
+    function onPetHead() {
+      moodSystem.addMood(10);
+      animator.setState('happy');
+      dialogueManager.triggerDialogue('interaction');
+      emitHeartParticles();
+      canvas.classList.add('pulse');
+      setTimeout(() => canvas.classList.remove('pulse'), 300);
+    }
+
+    // 拍身体互动
+    function onPetBody() {
+      moodSystem.addMood(5);
+      animator.setState('surprised');
+      animator.showBubble('哎呀！');
+      canvas.classList.add('pulse');
+      setTimeout(() => canvas.classList.remove('pulse'), 300);
+    }
+
+    // 发射爱心粒子
+    function emitHeartParticles() {
+      for (let i = 0; i < 5; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart-particle';
+        heart.textContent = '♥';
+        heart.style.left = (64 + (Math.random() - 0.5) * 40) + 'px';
+        heart.style.top = '20px';
+        heart.style.color = '#FF6B9D';
+        heart.style.animationDelay = (i * 0.1) + 's';
+        particlesContainer.appendChild(heart);
+
+        setTimeout(() => heart.remove(), 1000);
+      }
+    }
+
+    // ========== 拖拽功能 ==========
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return; // 只响应左键
+
+      isDragging = true;
+      dragStartX = e.screenX;
+      dragStartY = e.screenY;
+      petStartX = petX;
+      petStartY = petY;
+
+      canvas.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+
+      const deltaX = e.screenX - dragStartX;
+      const deltaY = e.screenY - dragStartY;
+
+      petX = petStartX + deltaX;
+      petY = petStartY + deltaY;
+
+      // 边界限制
+      petX = Math.max(0, Math.min(petX, screenWidth - 128));
+      petY = Math.max(0, Math.min(petY, screenHeight - 128));
+
+      updateWindowPosition();
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        canvas.style.cursor = 'pointer';
+      }
+    });
+
+    // ========== 监听主进程动作 ==========
+
+    if (window.electronAPI) {
+      window.electronAPI.onPetAction((action) => {
+        switch (action) {
+          case 'pet-head':
+            onPetHead();
+            break;
+          case 'feed':
+            moodSystem.addMood(20);
+            animator.setState('happy');
+            animator.showBubble('好好吃~');
+            emitHeartParticles();
+            break;
+        }
+      });
+    }
+
+    // ========== 启动系统 ==========
+
+    // 初始化屏幕
+    initScreen();
+
+    // 启动闲逛
+    updateRoaming();
+
+    // 启动时间问候
+    setTimeout(() => {
+      dialogueManager.triggerTimeGreeting();
+    }, 3000);
+
+    // 定期更新心情
+    setInterval(() => {
+      moodSystem.update(60000);
+    }, 60000);
+
+    console.log('桌面宠物系统已启动');
   </script>
 </body>
 </html>

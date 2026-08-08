@@ -55,40 +55,53 @@ const petSizeConfig = {
 
 // 创建透明悬浮宠物窗口
 function createPetWindow() {
-  const alwaysOnTop = store.get('alwaysOnTop', false);
-  const petSize = store.get('petSize', 'medium');
-  const sizeConfig = petSizeConfig[petSize] || petSizeConfig.medium;
+  const alwaysOnTop = store.get('alwaysOnTop', true);
   const appIcon = getAppIcon();
-  
+
+  // macOS 优化的窗口配置
   const options = {
-    width: sizeConfig.width,
-    height: sizeConfig.height,
+    width: 128,
+    height: 128,
     transparent: true,
     frame: false,
+    hasShadow: false,
     alwaysOnTop: alwaysOnTop,
     resizable: false,
     skipTaskbar: true,
+    // macOS 特有属性
+    ...(process.platform === 'darwin' ? {
+      titleBarStyle: 'customButtonsOnHover',
+      vibrancy: null,
+      backgroundColor: '#00000000'
+    } : {}),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
     }
   };
-  
+
   if (appIcon) {
     options.icon = appIcon;
   }
-  
+
   petWindow = new BrowserWindow(options);
 
-  // 定位到屏幕右下角
+  // 定位到屏幕底部中央
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-  const x = width - sizeConfig.width - 20; // 距离右边缘20px
-  const y = height - sizeConfig.height - 20; // 距离底部20px
+  const x = Math.round(width / 2 - 64);
+  const y = Math.round(height - 128 - 50);
   petWindow.setPosition(x, y);
 
+  // macOS: 设置窗口级别为浮动（始终在桌面之上）
+  if (process.platform === 'darwin') {
+    petWindow.setAlwaysOnTop(true, 'floating');
+    // 允许鼠标穿透（仅在非交互区域）
+    // petWindow.setIgnoreMouseEvents(true, { forward: true });
+  }
+
   petWindow.loadFile('renderer/pet.html');
-  
+
   if (process.argv.includes('--dev')) {
     petWindow.webContents.openDevTools({ mode: 'detach' });
   }
@@ -835,6 +848,57 @@ ipcMain.handle('get-quick-access-templates', () => {
 // 设置快捷访问模板列表
 ipcMain.handle('set-quick-access-templates', (event, { templateIds }) => {
   store.setQuickAccessTemplates(templateIds);
+  return { success: true };
+});
+
+// ========== 桌面宠物 IPC 处理器 ==========
+
+// 获取屏幕尺寸
+ipcMain.handle('get-screen-size', () => {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+  return { width, height };
+});
+
+// 设置窗口位置
+ipcMain.handle('set-window-position', (event, { x, y }) => {
+  if (petWindow && !petWindow.isDestroyed()) {
+    petWindow.setPosition(x, y);
+  }
+  return { success: true };
+});
+
+// 显示右键菜单
+ipcMain.handle('show-context-menu', (event, { x, y }) => {
+  const template = [
+    { label: '💬 打开对话', click: () => createChatWindow() },
+    { label: '⚙️ 设置', click: () => createSettingsWindow() },
+    { type: 'separator' },
+    { label: '😊 摸摸头', click: () => {
+      if (petWindow) petWindow.webContents.send('pet-action', 'pet-head');
+    }},
+    { label: '🎮 喂食', click: () => {
+      if (petWindow) petWindow.webContents.send('pet-action', 'feed');
+    }},
+    { type: 'separator' },
+    { label: '❌ 退出', click: () => app.quit() }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  menu.popup({
+    window: BrowserWindow.fromWebContents(event.sender),
+    x: x,
+    y: y
+  });
+});
+
+// 获取桌宠心情
+ipcMain.handle('get-pet-mood', () => {
+  return store.get('petMood', 50);
+});
+
+// 设置桌宠心情
+ipcMain.handle('set-pet-mood', (event, mood) => {
+  store.set('petMood', Math.max(0, Math.min(100, mood)));
   return { success: true };
 });
 

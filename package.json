@@ -1,7 +1,7 @@
 {
   "name": "ai-desktop-pet",
   "productName": "Yuns桌面助手",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "智能桌面宠物 - Yuns多模型对话助手 + MCP工具调用",
   "main": "main.js",
   "scripts": {
@@ -10,6 +10,9 @@
     "build": "electron-builder --win",
     "build:portable": "electron-builder --win portable",
     "build:all": "electron-builder --win --x64",
+    "build:mac": "electron-builder --mac",
+    "build:mac:dmg": "electron-builder --mac dmg",
+    "build:mac:zip": "electron-builder --mac zip",
     "menu:hide": "node toggle-menu.js hide",
     "menu:minimal": "node toggle-menu.js minimal",
     "menu:custom": "node toggle-menu.js custom"
@@ -65,6 +68,29 @@
       "!**/test/**",
       "!**/*.map"
     ],
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "category": "public.app-category.entertainment",
+      "darkModeSupport": true,
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false
+    },
     "win": {
       "target": [
         {
@@ -92,5 +118,8 @@
     "portable": {
       "artifactName": "Yuns桌面助手-便携版.exe"
     }
+  },
+  "allowScripts": {
+    "electron@28.3.3": true
   }
 }

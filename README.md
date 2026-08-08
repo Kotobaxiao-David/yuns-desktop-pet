@@ -1,7 +1,7 @@
 # 🐕 Yuns桌面助手
 
 <p align="center">
-  <img src="assets/shiba.jpg" alt="Yuns桌面助手" width="150"/>
+  <img src="assets/icon.png" alt="Yuns桌面助手" width="150"/>
 </p>
 
 <p align="center">
@@ -11,13 +11,44 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Electron-28.0.0-47848F?logo=electron" alt="Electron"/>
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License"/>
-  <img src="https://img.shields.io/badge/Version-2.2.0-blue" alt="Version"/>
-  <img src="https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows" alt="Platform"/>
+  <img src="https://img.shields.io/badge/Version-2.3.0-blue" alt="Version"/>
+  <img src="https://img.shields.io/badge/Platform-macOS-0078D6?logo=apple" alt="Platform"/>
 </p>
 
 ---
 
 ## ✨ 功能特性
+
+### 🎮 桌面宠物系统（新增！）
+
+**二次元像素风角色**
+- 程序化生成的猫耳少女像素角色
+- 32x32 像素，4x 缩放渲染
+- 粉色系配色，二次元风格
+
+**桌面闲逛**
+- 桌宠在屏幕底部随机移动
+- 行走、站立、坐下、睡觉等多种状态
+- 自动避开屏幕边缘
+
+**互动系统**
+- 单击摸头：显示爱心特效，心情+10
+- 单击身体：显示惊讶表情
+- 双击：打开 AI 对话窗口
+- 右键：显示功能菜单
+- 拖拽：移动桌宠位置
+
+**心情系统**
+- 心情值 0-100，影响表情和对话
+- 互动增加心情，长时间无互动衰减
+- 不同心情等级显示不同对话
+
+**对话气泡**
+- 定时显示趣味对话
+- 时间段问候（早/中/晚）
+- 系统提醒（休息、喝水）
+
+---
 
 ### 🤖 多模型AI对话（支持 10+ 提供商）
 
