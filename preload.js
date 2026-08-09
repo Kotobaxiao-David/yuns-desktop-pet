@@ -479,4 +479,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return await ipcRenderer.invoke('open-external', url);
   },
 
+  // 调整宠物窗口大小（显示/隐藏泡泡时使用）
+  resizePetWindow: async (height) => {
+    return await ipcRenderer.invoke('resize-pet-window', { height });
+  },
+
 });

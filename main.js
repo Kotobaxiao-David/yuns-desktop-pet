@@ -971,6 +971,25 @@ ipcMain.handle('update-refresh-interval', (event, { minutes }) => {
   return { success: true };
 });
 
+// 调整宠物窗口大小（显示/隐藏泡泡时）
+ipcMain.handle('resize-pet-window', (event, { height }) => {
+  if (petWindow && !petWindow.isDestroyed()) {
+    const [currentX, currentY] = petWindow.getPosition();
+    const currentBounds = petWindow.getBounds();
+
+    // 计算新的 y 位置，保持窗口底部不动，向上扩展
+    const newY = currentY - (height - currentBounds.height);
+
+    petWindow.setBounds({
+      x: currentX,
+      y: newY,
+      width: currentBounds.width,
+      height: height
+    });
+  }
+  return { success: true };
+});
+
 // ========== 桌面宠物 IPC 处理器 ==========
 
 // 获取屏幕尺寸

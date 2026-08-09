@@ -72,7 +72,7 @@
     /* 持久提醒气泡 */
     .persistent-bubble {
       position: fixed;
-      bottom: 140px;
+      top: 10px;
       left: 50%;
       transform: translateX(-50%);
       background: white;
@@ -131,7 +131,7 @@
     }
 
     @keyframes bubble-in {
-      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
       to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
   </style>
@@ -437,7 +437,6 @@
     function showPersistentBubble(title, content, type = 'reminder', eventId = null) {
       console.log('🎨 showPersistentBubble 被调用:', { title, content, type, eventId });
       const bubble = document.getElementById('persistent-bubble');
-      console.log('🎨 bubble 元素:', bubble);
 
       if (!bubble) {
         console.log('❌ persistent-bubble 元素不存在！');
@@ -453,7 +452,12 @@
       document.getElementById('bubble-body').innerHTML = content;
 
       bubble.classList.remove('hidden');
-      console.log('✅ 泡泡应该已显示，hidden 状态:', bubble.classList.contains('hidden'));
+      console.log('✅ 泡泡已显示');
+
+      // 调整窗口高度以显示泡泡（窗口向上扩展）
+      if (window.electronAPI.resizePetWindow) {
+        window.electronAPI.resizePetWindow(280);
+      }
     }
 
     /**
@@ -464,6 +468,11 @@
       if (bubble) {
         bubble.classList.add('hidden');
         bubble.dataset.eventId = '';
+      }
+
+      // 恢复窗口高度
+      if (window.electronAPI.resizePetWindow) {
+        window.electronAPI.resizePetWindow(128);
       }
     }
 
