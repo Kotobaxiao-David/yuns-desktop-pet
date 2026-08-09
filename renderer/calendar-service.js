@@ -275,7 +275,7 @@ class CalendarService {
   }
 
   /**
-   * 获取即将到来的事件（未来24小时）
+   * 获取即将到来的事件（未来24小时 + 正在进行的事件）
    * @returns {Array} 即将到来的事件
    */
   getUpcomingEvents() {
@@ -284,7 +284,10 @@ class CalendarService {
 
     return this.events.filter(event => {
       const eventStart = new Date(event.start);
-      return eventStart >= now && eventStart <= tomorrow;
+      const eventEnd = new Date(event.end);
+
+      // 返回未结束的事件（包括正在进行中的）
+      return eventEnd >= now && eventStart <= tomorrow;
     });
   }
 
