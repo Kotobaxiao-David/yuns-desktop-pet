@@ -366,5 +366,82 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setQuickAccessTemplates: async (templateIds) => {
     return await ipcRenderer.invoke('set-quick-access-templates', { templateIds });
   },
-  
+
+  // ========== 日历相关 API ==========
+
+  // 获取日历配置
+  getCalendarConfig: async () => {
+    return await ipcRenderer.invoke('get-calendar-config');
+  },
+
+  // 保存日历配置
+  saveCalendarConfig: async (config) => {
+    return await ipcRenderer.invoke('save-calendar-config', config);
+  },
+
+  // 列出 CalDAV 日历
+  listCalDAVCalendars: async (server, username, password) => {
+    return await ipcRenderer.invoke('list-caldav-calendars', { server, username, password });
+  },
+
+  // 测试日历连接
+  testCalendarConnection: async (connection) => {
+    return await ipcRenderer.invoke('test-calendar-connection', connection);
+  },
+
+  // 添加日历连接
+  addCalendarConnection: async (connection) => {
+    return await ipcRenderer.invoke('add-calendar-connection', connection);
+  },
+
+  // 更新日历连接
+  updateCalendarConnection: async (id, updates) => {
+    return await ipcRenderer.invoke('update-calendar-connection', { id, updates });
+  },
+
+  // 删除日历连接
+  deleteCalendarConnection: async (id) => {
+    return await ipcRenderer.invoke('delete-calendar-connection', { id });
+  },
+
+  // 获取今日日程
+  getTodayEvents: async () => {
+    return await ipcRenderer.invoke('get-today-events');
+  },
+
+  // 获取即将到来的事件
+  getUpcomingEvents: async () => {
+    return await ipcRenderer.invoke('get-upcoming-events');
+  },
+
+  // 手动刷新日历
+  refreshCalendar: async () => {
+    return await ipcRenderer.invoke('refresh-calendar');
+  },
+
+  // 显示今日日程摘要
+  showDailySummary: async () => {
+    return await ipcRenderer.invoke('show-daily-summary');
+  },
+
+  // 监听日历提醒事件
+  onCalendarReminder: (callback) => {
+    ipcRenderer.on('calendar-reminder', (event, data) => callback(data));
+  },
+
+  // 监听日历气泡消息
+  onCalendarBubble: (callback) => {
+    ipcRenderer.on('calendar-bubble', (event, data) => callback(data));
+  },
+
+  // 移除日历提醒监听
+  removeCalendarReminderListener: () => {
+    ipcRenderer.removeAllListeners('calendar-reminder');
+  },
+
+  // 移除日历气泡监听
+  removeCalendarBubbleListener: () => {
+    ipcRenderer.removeAllListeners('calendar-bubble');
+  },
+
 });

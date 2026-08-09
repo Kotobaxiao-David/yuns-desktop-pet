@@ -48,6 +48,19 @@ const store = new Store({
       geminiKeys: [],
       // 是否自动同步 API 配置中的 Gemini Key
       autoSyncApiConfigs: true
+    },
+
+    // 日历配置
+    calendarConfig: {
+      enabled: false,
+      // 日历连接列表
+      connections: [],
+      // 提前提醒时间（分钟），null 表示使用日历自带设置
+      reminderMinutesBefore: null,
+      // 今日日程提醒时间（HH:mm）
+      dailySummaryTime: '09:00',
+      // 是否显示已过期事件
+      showPastEvents: false
     }
   }
 });
@@ -326,6 +339,80 @@ store.getQuickAccessTemplates = function() {
 // 设置快捷访问模板列表
 store.setQuickAccessTemplates = function(templateIds) {
   this.set('quickAccessTemplates', templateIds);
+};
+
+// ========== 日历管理方法 ==========
+
+// 获取日历配置
+store.getCalendarConfig = function() {
+  return this.get('calendarConfig', {
+    enabled: false,
+    connections: [],
+    reminderMinutesBefore: null,
+    dailySummaryTime: '09:00',
+    showPastEvents: false
+  });
+};
+
+// 设置日历启用状态
+store.setCalendarEnabled = function(enabled) {
+  const config = this.getCalendarConfig();
+  config.enabled = enabled;
+  this.set('calendarConfig', config);
+};
+
+// 添加日历连接
+store.addCalendarConnection = function(connection) {
+  const config = this.getCalendarConfig();
+  const newConnection = {
+    id: generateId(),
+    enabled: true,
+    status: 'pending',
+    lastSync: null,
+    ...connection
+  };
+  config.connections.push(newConnection);
+  this.set('calendarConfig', config);
+  return newConnection;
+};
+
+// 更新日历连接
+store.updateCalendarConnection = function(id, updates) {
+  const config = this.getCalendarConfig();
+  const index = config.connections.findIndex(c => c.id === id);
+  if (index !== -1) {
+    config.connections[index] = { ...config.connections[index], ...updates };
+    this.set('calendarConfig', config);
+    return config.connections[index];
+  }
+  return null;
+};
+
+// 删除日历连接
+store.deleteCalendarConnection = function(id) {
+  const config = this.getCalendarConfig();
+  config.connections = config.connections.filter(c => c.id !== id);
+  this.set('calendarConfig', config);
+};
+
+// 获取启用的日历连接
+store.getEnabledCalendarConnections = function() {
+  const config = this.getCalendarConfig();
+  return config.connections.filter(c => c.enabled);
+};
+
+// 设置提醒提前时间
+store.setReminderMinutesBefore = function(minutes) {
+  const config = this.getCalendarConfig();
+  config.reminderMinutesBefore = minutes;
+  this.set('calendarConfig', config);
+};
+
+// 设置今日日程提醒时间
+store.setDailySummaryTime = function(time) {
+  const config = this.getCalendarConfig();
+  config.dailySummaryTime = time;
+  this.set('calendarConfig', config);
 };
 
 module.exports = store;

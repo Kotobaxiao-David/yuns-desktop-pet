@@ -88,9 +88,11 @@ async function initialize() {
   await loadSettings();
   await loadMcpServers();
   await loadProxyConfig();
+  await loadCalendarConfig();
   bindEvents();
   bindMcpEvents();
   bindProxyEvents();
+  bindCalendarEvents();
 }
 
 // 加载所有配置
@@ -1836,6 +1838,452 @@ function showProxyTestResult(type, message) {
 function hideProxyTestResult() {
   if (proxyTestResult) {
     proxyTestResult.classList.add('hidden');
+  }
+}
+
+// ========== 日历配置功能 ==========
+
+// 日历相关变量
+let calendarConfig = null;
+let calendarConnections = [];
+
+// DOM元素 - 日历
+const calendarEnabledCheckbox = document.getElementById('calendar-enabled');
+const calendarConnectionsList = document.getElementById('calendar-connections-list');
+const addCalendarBtn = document.getElementById('add-calendar-btn');
+const reminderTimeSelect = document.getElementById('reminder-time-select');
+const dailySummaryTimeInput = document.getElementById('daily-summary-time');
+const todayEventsList = document.getElementById('today-events-list');
+const refreshCalendarBtn = document.getElementById('refresh-calendar-btn');
+const showDailySummaryBtn = document.getElementById('show-daily-summary-btn');
+
+// DOM元素 - 日历模态框
+const calendarModal = document.getElementById('calendar-modal');
+const calendarModalTitle = document.getElementById('calendar-modal-title');
+const closeCalendarModalBtn = document.getElementById('close-calendar-modal-btn');
+const calendarTypeSelect = document.getElementById('calendar-type-select');
+const caldavFields = document.getElementById('caldav-fields');
+const icsFields = document.getElementById('ics-fields');
+const caldavServerInput = document.getElementById('caldav-server');
+const caldavUsernameInput = document.getElementById('caldav-username');
+const caldavPasswordInput = document.getElementById('caldav-password');
+const testCalDAVBtn = document.getElementById('test-caldav-btn');
+const caldavCalendarsSection = document.getElementById('caldav-calendars-section');
+const caldavCalendarSelect = document.getElementById('caldav-calendar-select');
+const icsUrlInput = document.getElementById('ics-url');
+const testICSBtn = document.getElementById('test-ics-btn');
+const calendarNameInput = document.getElementById('calendar-name');
+const calendarTestResult = document.getElementById('calendar-test-result');
+const cancelCalendarBtn = document.getElementById('cancel-calendar-btn');
+const saveCalendarBtn = document.getElementById('save-calendar-btn');
+
+// 日历测试结果缓存
+let calendarTestResultData = null;
+
+/**
+ * 加载日历配置
+ */
+async function loadCalendarConfig() {
+  try {
+    calendarConfig = await window.electronAPI.getCalendarConfig();
+    calendarConnections = calendarConfig.connections || [];
+
+    // 更新UI
+    if (calendarEnabledCheckbox) {
+      calendarEnabledCheckbox.checked = calendarConfig.enabled || false;
+    }
+    if (reminderTimeSelect) {
+      reminderTimeSelect.value = calendarConfig.reminderMinutesBefore !== null
+        ? calendarConfig.reminderMinutesBefore.toString()
+        : 'null';
+    }
+    if (dailySummaryTimeInput) {
+      dailySummaryTimeInput.value = calendarConfig.dailySummaryTime || '09:00';
+    }
+
+    renderCalendarConnections();
+    loadTodayEvents();
+  } catch (error) {
+    console.error('加载日历配置失败:', error);
+  }
+}
+
+/**
+ * 渲染日历连接列表
+ */
+function renderCalendarConnections() {
+  if (!calendarConnectionsList) return;
+
+  if (calendarConnections.length === 0) {
+    calendarConnectionsList.innerHTML = '<p class="empty-state">暂未添加日历源</p>';
+    return;
+  }
+
+  calendarConnectionsList.innerHTML = calendarConnections.map(conn => {
+    const statusIcon = conn.status === 'connected' ? '✅' : conn.status === 'error' ? '❌' : '⏳';
+    const statusText = conn.status === 'connected' ? '已连接' : conn.status === 'error' ? '连接失败' : '待连接';
+    const typeText = conn.type === 'caldav' ? 'CalDAV' : 'ICS';
+    const sourceText = conn.type === 'caldav' ? conn.server : conn.url;
+
+    return `
+      <div class="calendar-connection-card" data-id="${conn.id}">
+        <div class="connection-info">
+          <div class="connection-header">
+            <span class="connection-type">${typeText}</span>
+            <span class="connection-status ${conn.status}">${statusIcon} ${statusText}</span>
+          </div>
+          <h4>${conn.name || '未命名日历'}</h4>
+          <p class="connection-source">${sourceText || ''}</p>
+          ${conn.lastSync ? `<p class="connection-sync">上次同步: ${new Date(conn.lastSync).toLocaleString()}</p>` : ''}
+        </div>
+        <div class="connection-actions">
+          <button class="btn-icon" onclick="deleteCalendarConnection('${conn.id}')" title="删除">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/**
+ * 加载今日日程
+ */
+async function loadTodayEvents() {
+  if (!todayEventsList) return;
+
+  try {
+    const events = await window.electronAPI.getTodayEvents();
+
+    if (events.length === 0) {
+      todayEventsList.innerHTML = '<p class="empty-state">今天没有日程安排</p>';
+      return;
+    }
+
+    todayEventsList.innerHTML = events.map(event => {
+      const startTime = new Date(event.start).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+      const endTime = new Date(event.end).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+
+      return `
+        <div class="event-item">
+          <div class="event-time">${startTime} - ${endTime}</div>
+          <div class="event-title">${event.title}</div>
+          ${event.location ? `<div class="event-location">📍 ${event.location}</div>` : ''}
+          <div class="event-calendar">${event.calendarName || ''}</div>
+        </div>
+      `;
+    }).join('');
+  } catch (error) {
+    todayEventsList.innerHTML = '<p class="empty-state">加载日程失败</p>';
+  }
+}
+
+/**
+ * 绑定日历事件
+ */
+function bindCalendarEvents() {
+  // 启用开关
+  calendarEnabledCheckbox?.addEventListener('change', async () => {
+    const enabled = calendarEnabledCheckbox.checked;
+    await window.electronAPI.saveCalendarConfig({ enabled });
+    calendarConfig.enabled = enabled;
+    showToast(enabled ? '✅ 日历提醒已启用' : '⏸️ 日历提醒已禁用', 'success');
+  });
+
+  // 添加日历源按钮
+  addCalendarBtn?.addEventListener('click', () => {
+    openCalendarModal();
+  });
+
+  // 提醒时间选择
+  reminderTimeSelect?.addEventListener('change', async () => {
+    const value = reminderTimeSelect.value === 'null' ? null : parseInt(reminderTimeSelect.value);
+    await window.electronAPI.saveCalendarConfig({ reminderMinutesBefore: value });
+    calendarConfig.reminderMinutesBefore = value;
+    showToast('✅ 提醒时间已保存', 'success');
+  });
+
+  // 每日摘要时间
+  dailySummaryTimeInput?.addEventListener('change', async () => {
+    const time = dailySummaryTimeInput.value;
+    await window.electronAPI.saveCalendarConfig({ dailySummaryTime: time });
+    calendarConfig.dailySummaryTime = time;
+    showToast('✅ 每日摘要时间已保存', 'success');
+  });
+
+  // 刷新按钮
+  refreshCalendarBtn?.addEventListener('click', async () => {
+    refreshCalendarBtn.disabled = true;
+    refreshCalendarBtn.textContent = '刷新中...';
+    try {
+      const result = await window.electronAPI.refreshCalendar();
+      if (result.success) {
+        showToast(`✅ 刷新成功，共 ${result.eventCount} 个事件`, 'success');
+        await loadTodayEvents();
+      } else {
+        showToast(`❌ 刷新失败: ${result.error}`, 'error');
+      }
+    } catch (error) {
+      showToast(`❌ 刷新失败: ${error.message}`, 'error');
+    } finally {
+      refreshCalendarBtn.disabled = false;
+      refreshCalendarBtn.innerHTML = '<span>🔄</span><span>立即刷新</span>';
+    }
+  });
+
+  // 显示今日摘要按钮
+  showDailySummaryBtn?.addEventListener('click', async () => {
+    await window.electronAPI.showDailySummary();
+    showToast('📅 已发送今日日程摘要', 'success');
+  });
+
+  // 日历类型切换
+  calendarTypeSelect?.addEventListener('change', () => {
+    const type = calendarTypeSelect.value;
+    if (type === 'caldav') {
+      caldavFields?.classList.remove('hidden');
+      icsFields?.classList.add('hidden');
+    } else {
+      caldavFields?.classList.add('hidden');
+      icsFields?.classList.remove('hidden');
+    }
+  });
+
+  // 测试 CalDAV 连接
+  testCalDAVBtn?.addEventListener('click', async () => {
+    const server = caldavServerInput?.value?.trim();
+    const username = caldavUsernameInput?.value?.trim();
+    const password = caldavPasswordInput?.value?.trim();
+
+    if (!server || !username || !password) {
+      showCalendarTestResult('error', '请填写完整的服务器信息');
+      return;
+    }
+
+    testCalDAVBtn.disabled = true;
+    testCalDAVBtn.textContent = '连接中...';
+
+    try {
+      const result = await window.electronAPI.testCalendarConnection({
+        type: 'caldav',
+        server,
+        username,
+        password
+      });
+
+      if (result.success) {
+        // 显示日历选择下拉框
+        caldavCalendarSelect.innerHTML = result.calendars.map(cal =>
+          `<option value="${cal.path}">${cal.name}</option>`
+        ).join('');
+        caldavCalendarsSection?.classList.remove('hidden');
+        showCalendarTestResult('success', `连接成功！找到 ${result.calendars.length} 个日历`);
+        calendarTestResultData = { calendars: result.calendars };
+      } else {
+        showCalendarTestResult('error', `连接失败: ${result.error}`);
+        calendarTestResultData = null;
+      }
+    } catch (error) {
+      showCalendarTestResult('error', `连接失败: ${error.message}`);
+      calendarTestResultData = null;
+    } finally {
+      testCalDAVBtn.disabled = false;
+      testCalDAVBtn.innerHTML = '<span>🔍</span><span>测试连接并列出日历</span>';
+    }
+  });
+
+  // 测试 ICS 连接
+  testICSBtn?.addEventListener('click', async () => {
+    const url = icsUrlInput?.value?.trim();
+
+    if (!url) {
+      showCalendarTestResult('error', '请输入 ICS 订阅链接');
+      return;
+    }
+
+    testICSBtn.disabled = true;
+    testICSBtn.textContent = '测试中...';
+
+    try {
+      const result = await window.electronAPI.testCalendarConnection({
+        type: 'ics',
+        url
+      });
+
+      if (result.success) {
+        showCalendarTestResult('success', `连接成功！找到 ${result.eventCount} 个事件`);
+        calendarTestResultData = { eventCount: result.eventCount };
+      } else {
+        showCalendarTestResult('error', `连接失败: ${result.error}`);
+        calendarTestResultData = null;
+      }
+    } catch (error) {
+      showCalendarTestResult('error', `连接失败: ${error.message}`);
+      calendarTestResultData = null;
+    } finally {
+      testICSBtn.disabled = false;
+      testICSBtn.textContent = '测试连接';
+    }
+  });
+
+  // 保存日历源
+  saveCalendarBtn?.addEventListener('click', async () => {
+    await saveCalendarConnection();
+  });
+
+  // 取消按钮
+  cancelCalendarBtn?.addEventListener('click', () => {
+    closeCalendarModal();
+  });
+
+  // 关闭模态框
+  closeCalendarModalBtn?.addEventListener('click', () => {
+    closeCalendarModal();
+  });
+}
+
+/**
+ * 打开日历模态框
+ */
+function openCalendarModal(connection = null) {
+  if (!calendarModal) return;
+
+  // 重置表单
+  calendarNameInput.value = '';
+  caldavServerInput.value = '';
+  caldavUsernameInput.value = '';
+  caldavPasswordInput.value = '';
+  icsUrlInput.value = '';
+  calendarTypeSelect.value = 'caldav';
+  caldavFields?.classList.remove('hidden');
+  icsFields?.classList.add('hidden');
+  caldavCalendarsSection?.classList.add('hidden');
+  hideCalendarTestResult();
+  calendarTestResultData = null;
+
+  if (connection) {
+    // 编辑模式
+    calendarModalTitle.textContent = '📅 编辑日历源';
+    calendarNameInput.value = connection.name || '';
+    calendarTypeSelect.value = connection.type;
+
+    if (connection.type === 'caldav') {
+      caldavServerInput.value = connection.server || '';
+      caldavUsernameInput.value = connection.username || '';
+      caldavFields?.classList.remove('hidden');
+      icsFields?.classList.add('hidden');
+    } else {
+      icsUrlInput.value = connection.url || '';
+      caldavFields?.classList.add('hidden');
+      icsFields?.classList.remove('hidden');
+    }
+  } else {
+    calendarModalTitle.textContent = '📅 添加日历源';
+  }
+
+  calendarModal.classList.remove('hidden');
+}
+
+/**
+ * 关闭日历模态框
+ */
+function closeCalendarModal() {
+  if (calendarModal) {
+    calendarModal.classList.add('hidden');
+  }
+}
+
+/**
+ * 保存日历连接
+ */
+async function saveCalendarConnection() {
+  const type = calendarTypeSelect?.value;
+  const name = calendarNameInput?.value?.trim();
+
+  if (!name) {
+    showCalendarTestResult('error', '请输入日历名称');
+    return;
+  }
+
+  const connection = {
+    type,
+    name,
+    enabled: true,
+    status: 'pending'
+  };
+
+  if (type === 'caldav') {
+    connection.server = caldavServerInput?.value?.trim();
+    connection.username = caldavUsernameInput?.value?.trim();
+    connection.password = caldavPasswordInput?.value?.trim();
+    connection.calendarPath = caldavCalendarSelect?.value;
+    connection.calendarName = caldavCalendarSelect?.selectedOptions[0]?.text;
+
+    if (!connection.server || !connection.username || !connection.password) {
+      showCalendarTestResult('error', '请填写完整的 CalDAV 服务器信息');
+      return;
+    }
+
+    if (!connection.calendarPath) {
+      showCalendarTestResult('error', '请先测试连接并选择日历');
+      return;
+    }
+  } else {
+    connection.url = icsUrlInput?.value?.trim();
+
+    if (!connection.url) {
+      showCalendarTestResult('error', '请输入 ICS 订阅链接');
+      return;
+    }
+  }
+
+  try {
+    const result = await window.electronAPI.addCalendarConnection(connection);
+
+    if (result.success) {
+      showToast('✅ 日历源添加成功', 'success');
+      closeCalendarModal();
+      await loadCalendarConfig();
+    } else {
+      showCalendarTestResult('error', '保存失败');
+    }
+  } catch (error) {
+    showCalendarTestResult('error', `保存失败: ${error.message}`);
+  }
+}
+
+/**
+ * 删除日历连接
+ */
+async function deleteCalendarConnection(id) {
+  if (!confirm('确定要删除这个日历源吗？')) {
+    return;
+  }
+
+  try {
+    await window.electronAPI.deleteCalendarConnection(id);
+    showToast('✅ 日历源已删除', 'success');
+    await loadCalendarConfig();
+  } catch (error) {
+    showToast(`❌ 删除失败: ${error.message}`, 'error');
+  }
+}
+
+/**
+ * 显示日历测试结果
+ */
+function showCalendarTestResult(type, message) {
+  if (!calendarTestResult) return;
+
+  calendarTestResult.className = `test-result-area ${type}`;
+  calendarTestResult.textContent = message;
+  calendarTestResult.classList.remove('hidden');
+}
+
+/**
+ * 隐藏日历测试结果
+ */
+function hideCalendarTestResult() {
+  if (calendarTestResult) {
+    calendarTestResult.classList.add('hidden');
   }
 }
 

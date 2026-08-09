@@ -3287,3 +3287,285 @@ body.dark-mode .provider-select option {
   background: #252540;
   color: #E4E4E7;
 }
+
+/* ========== 日历相关样式 ========== */
+
+/* 日历连接卡片 */
+.connections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.calendar-connection-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 2px solid #FFE0B2;
+  transition: all 0.3s ease;
+}
+
+.calendar-connection-card:hover {
+  border-color: #FF9800;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
+}
+
+.connection-info {
+  flex: 1;
+}
+
+.connection-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.connection-type {
+  background: linear-gradient(135deg, #FF9800, #FF5722);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.connection-status {
+  font-size: 12px;
+  color: #666;
+}
+
+.connection-status.connected {
+  color: #4CAF50;
+}
+
+.connection-status.error {
+  color: #F44336;
+}
+
+.connection-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.connection-source {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+  word-break: break-all;
+}
+
+.connection-sync {
+  margin: 4px 0 0 0;
+  font-size: 11px;
+  color: #999;
+}
+
+.connection-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.btn-icon:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* 事件列表 */
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.event-item {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  border-left: 4px solid #FF9800;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.event-time {
+  font-size: 12px;
+  color: #FF9800;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.event-title {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.event-location {
+  font-size: 12px;
+  color: #666;
+}
+
+.event-calendar {
+  font-size: 11px;
+  color: #999;
+  margin-top: 4px;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  color: #999;
+  padding: 20px;
+  font-size: 14px;
+}
+
+/* 日历模态框 */
+.calendar-modal {
+  max-width: 500px;
+}
+
+.calendar-modal .modal-body {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* 表单组 */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #FFE0B2;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #FF9800;
+}
+
+.form-hint {
+  margin: 6px 0 0 0;
+  font-size: 12px;
+  color: #666;
+}
+
+/* 测试结果区域 */
+.test-result-area {
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.test-result-area.success {
+  background: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #A5D6A7;
+}
+
+.test-result-area.error {
+  background: #FFEBEE;
+  color: #C62828;
+  border: 1px solid #EF9A9A;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* 密码输入框 */
+.password-input {
+  position: relative;
+}
+
+.password-input input {
+  padding-right: 40px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* 暗色模式适配 */
+body.dark-mode .calendar-connection-card {
+  background: #252540;
+  border-color: #3D3D5C;
+}
+
+body.dark-mode .connection-info h4 {
+  color: #E4E4E7;
+}
+
+body.dark-mode .connection-source,
+body.dark-mode .connection-sync {
+  color: #A0A0B0;
+}
+
+body.dark-mode .event-item {
+  background: #252540;
+}
+
+body.dark-mode .event-title {
+  color: #E4E4E7;
+}
+
+body.dark-mode .event-location,
+body.dark-mode .event-calendar {
+  color: #A0A0B0;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select,
+body.dark-mode .form-group textarea {
+  background: #1E1E32;
+  border-color: #3D3D5C;
+  color: #E4E4E7;
+}
+
+body.dark-mode .form-group label {
+  color: #E4E4E7;
+}
+
+body.dark-mode .form-hint {
+  color: #A0A0B0;
+}

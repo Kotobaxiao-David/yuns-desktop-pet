@@ -306,6 +306,26 @@
             break;
         }
       });
+
+      // ========== 监听日历提醒 ==========
+
+      // 监听日历提醒事件
+      window.electronAPI.onCalendarReminder((data) => {
+        console.log('收到日历提醒:', data);
+        // 显示气泡消息
+        animator.showBubble(data.message, 8000);
+        // 切换到开心状态
+        animator.setState('happy');
+        setTimeout(() => {
+          animator.setState('idle');
+        }, 3000);
+      });
+
+      // 监听日历气泡消息
+      window.electronAPI.onCalendarBubble((data) => {
+        console.log('收到日历气泡:', data);
+        animator.showBubble(data.message, data.duration || 5000);
+      });
     }
 
     // ========== 启动系统 ==========

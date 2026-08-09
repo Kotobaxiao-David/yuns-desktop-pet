@@ -851,6 +851,97 @@ ipcMain.handle('set-quick-access-templates', (event, { templateIds }) => {
   return { success: true };
 });
 
+// ========== 日历相关 IPC 处理器 ==========
+
+// 导入日历服务
+const calendarService = require('./renderer/calendar-service');
+const ReminderManager = require('./renderer/reminder-manager');
+const reminderManager = new ReminderManager(calendarService);
+
+// 列出 CalDAV 服务器上的可用日历
+ipcMain.handle('list-caldav-calendars', async (event, { server, username, password }) => {
+  try {
+    const calendars = await calendarService.listCalDAVCalendars({ server, username, password });
+    return { success: true, calendars };
+  } catch (error) {
+    console.error('列出 CalDAV 日历失败:', error.message);
+    return { success: false, error: error.message };
+  }
+});
+
+// 测试日历连接
+ipcMain.handle('test-calendar-connection', async (event, connection) => {
+  try {
+    if (connection.type === 'caldav') {
+      const calendars = await calendarService.listCalDAVCalendars(connection);
+      return { success: true, calendars };
+    } else {
+      const events = await calendarService.fetchICSEvents(connection.url, connection);
+      return { success: true, eventCount: events.length };
+    }
+  } catch (error) {
+    console.error('测试日历连接失败:', error.message);
+    return { success: false, error: error.message };
+  }
+});
+
+// 获取今日日程
+ipcMain.handle('get-today-events', async () => {
+  return calendarService.getTodayEvents();
+});
+
+// 获取即将到来的事件
+ipcMain.handle('get-upcoming-events', async () => {
+  return calendarService.getUpcomingEvents();
+});
+
+// 保存日历配置
+ipcMain.handle('save-calendar-config', async (event, config) => {
+  const currentConfig = store.getCalendarConfig();
+  store.set('calendarConfig', { ...currentConfig, ...config });
+  return { success: true };
+});
+
+// 添加日历连接
+ipcMain.handle('add-calendar-connection', async (event, connection) => {
+  const newConnection = store.addCalendarConnection(connection);
+  return { success: true, connection: newConnection };
+});
+
+// 更新日历连接
+ipcMain.handle('update-calendar-connection', async (event, { id, updates }) => {
+  const updated = store.updateCalendarConnection(id, updates);
+  return { success: !!updated, connection: updated };
+});
+
+// 删除日历连接
+ipcMain.handle('delete-calendar-connection', async (event, { id }) => {
+  store.deleteCalendarConnection(id);
+  return { success: true };
+});
+
+// 手动刷新日历
+ipcMain.handle('refresh-calendar', async () => {
+  try {
+    const events = await calendarService.refreshAll();
+    return { success: true, eventCount: events.length };
+  } catch (error) {
+    console.error('刷新日历失败:', error.message);
+    return { success: false, error: error.message };
+  }
+});
+
+// 显示今日日程摘要
+ipcMain.handle('show-daily-summary', async () => {
+  reminderManager.triggerDailySummary();
+  return { success: true };
+});
+
+// 获取日历配置
+ipcMain.handle('get-calendar-config', async () => {
+  return store.getCalendarConfig();
+});
+
 // ========== 桌面宠物 IPC 处理器 ==========
 
 // 获取屏幕尺寸
@@ -1051,6 +1142,23 @@ app.whenReady().then(async () => {
       console.log(`✅ 已自动连接 ${connectedServers.length} 个 MCP 服务器`);
     } catch (error) {
       console.error('❌ MCP 自动连接失败:', error.message);
+    }
+  }
+
+  // 启动日历服务和提醒管理器
+  const calendarConfig = store.getCalendarConfig();
+  if (calendarConfig.enabled) {
+    console.log('📅 日历提醒功能已启用，正在启动服务...');
+    try {
+      // 设置提醒管理器的窗口引用
+      reminderManager.setPetWindow(petWindow);
+      // 启动日历自动刷新
+      calendarService.startAutoRefresh();
+      // 启动提醒管理器
+      reminderManager.start();
+      console.log('✅ 日历提醒服务已启动');
+    } catch (error) {
+      console.error('❌ 日历服务启动失败:', error.message);
     }
   }
 

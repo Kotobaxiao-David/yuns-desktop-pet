@@ -37,6 +37,10 @@
           <span class="nav-icon">🎨</span>
           <span class="nav-text">外观设置</span>
         </button>
+        <button class="nav-item" data-tab="calendar">
+          <span class="nav-icon">📅</span>
+          <span class="nav-text">日历提醒</span>
+        </button>
         <button class="nav-item" data-tab="about">
           <span class="nav-icon">ℹ️</span>
           <span class="nav-text">关于</span>
@@ -467,6 +471,85 @@
         </div>
       </div>
 
+      <!-- 日历提醒页面 -->
+      <div id="calendar-tab" class="tab-content">
+        <div class="tab-header">
+          <h1>日历提醒设置</h1>
+          <p class="tab-description">连接钉钉、飞书等日历，接收会议提醒</p>
+        </div>
+
+        <div class="tab-body">
+          <!-- 启用开关 -->
+          <div class="settings-section">
+            <h3>日历功能</h3>
+            <div class="setting-item">
+              <div class="setting-info">
+                <label>启用日历提醒</label>
+                <p class="setting-desc">开启后将自动同步日历事件并发送会议提醒</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="calendar-enabled">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 日历源列表 -->
+          <div class="settings-section">
+            <h3>日历源</h3>
+            <div id="calendar-connections-list" class="connections-list">
+              <!-- 动态生成 -->
+            </div>
+            <button id="add-calendar-btn" class="primary-btn" style="margin-top: 12px;">
+              <span>➕</span>
+              <span>添加日历源</span>
+            </button>
+          </div>
+
+          <!-- 提醒设置 -->
+          <div class="settings-section">
+            <h3>提醒设置</h3>
+            <div class="setting-item">
+              <div class="setting-info">
+                <label>提前提醒时间</label>
+                <p class="setting-desc">会议开始前多久发送提醒（选择"使用日历设置"将使用日历自带的提醒时间）</p>
+              </div>
+              <select id="reminder-time-select" class="setting-select">
+                <option value="null">使用日历设置</option>
+                <option value="5">5 分钟</option>
+                <option value="10">10 分钟</option>
+                <option value="15">15 分钟</option>
+                <option value="30">30 分钟</option>
+                <option value="60">1 小时</option>
+              </select>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <label>今日日程提醒时间</label>
+                <p class="setting-desc">每天定时显示今日日程摘要</p>
+              </div>
+              <input type="time" id="daily-summary-time" value="09:00" class="setting-input">
+            </div>
+          </div>
+
+          <!-- 今日日程预览 -->
+          <div class="settings-section">
+            <h3>今日日程</h3>
+            <div id="today-events-list" class="events-list">
+              <p class="empty-state">暂无日程数据，请先添加日历源</p>
+            </div>
+            <button id="refresh-calendar-btn" class="secondary-btn" style="margin-top: 12px;">
+              <span>🔄</span>
+              <span>立即刷新</span>
+            </button>
+            <button id="show-daily-summary-btn" class="secondary-btn" style="margin-top: 12px; margin-left: 8px;">
+              <span>📅</span>
+              <span>显示今日摘要</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- 关于页面 -->
       <div id="about-tab" class="tab-content">
         <div class="tab-header">
@@ -656,6 +739,93 @@
 
   <!-- 状态提示 -->
   <div id="toast" class="toast hidden"></div>
+
+  <!-- 日历源配置模态框 -->
+  <div id="calendar-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-content calendar-modal">
+      <div class="modal-header">
+        <h2 id="calendar-modal-title">📅 添加日历源</h2>
+        <button class="close-modal" id="close-calendar-modal-btn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- 类型选择 -->
+        <div class="form-group">
+          <label>日历类型 *</label>
+          <select id="calendar-type-select" required>
+            <option value="caldav">CalDAV（钉钉/飞书）</option>
+            <option value="ics">ICS 订阅链接</option>
+          </select>
+        </div>
+
+        <!-- CalDAV 字段 -->
+        <div id="caldav-fields">
+          <div class="form-group">
+            <label>服务器地址 *</label>
+            <input type="text" id="caldav-server" placeholder="caldav.feishu.cn">
+            <p class="form-hint">💡 飞书: caldav.feishu.cn，钉钉: calendar.dingtalk.com</p>
+          </div>
+
+          <div class="form-group">
+            <label>用户名 *</label>
+            <input type="text" id="caldav-username" placeholder="u_ldhc1159">
+          </div>
+
+          <div class="form-group">
+            <label>密码 *</label>
+            <div class="password-input">
+              <input type="password" id="caldav-password" placeholder="输入密码">
+              <button class="toggle-password" type="button">👁️</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <button id="test-caldav-btn" class="secondary-btn" type="button">
+              <span>🔍</span>
+              <span>测试连接并列出日历</span>
+            </button>
+          </div>
+
+          <div id="caldav-calendars-section" class="form-group hidden">
+            <label>选择日历 *</label>
+            <select id="caldav-calendar-select">
+              <option value="">请先测试连接</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ICS 字段 -->
+        <div id="ics-fields" class="hidden">
+          <div class="form-group">
+            <label>ICS 订阅链接 *</label>
+            <input type="text" id="ics-url" placeholder="https://calendar.google.com/calendar/ical/xxx/basic.ics">
+            <p class="form-hint">💡 支持 Google Calendar、Outlook 等标准 ICS 格式链接</p>
+          </div>
+
+          <div class="form-group">
+            <button id="test-ics-btn" class="secondary-btn" type="button">
+              <span>🔍</span>
+              <span>测试连接</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 通用字段 -->
+        <div class="form-group">
+          <label>日历名称 *</label>
+          <input type="text" id="calendar-name" placeholder="例如: 飞书工作日历">
+        </div>
+      </div>
+
+      <div id="calendar-test-result" class="test-result-area hidden"></div>
+
+      <div class="modal-footer">
+        <button id="cancel-calendar-btn" class="secondary-btn">取消</button>
+        <button id="save-calendar-btn" class="primary-btn">💾 保存</button>
+      </div>
+    </div>
+  </div>
 
   <script src="settings.js"></script>
 </body>
