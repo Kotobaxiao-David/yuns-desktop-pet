@@ -42,6 +42,18 @@
 - 推送到GitHub
 结果: 文档已推送到GitHub，待用户按计划实施
 
+操作3：日历提醒功能PRD编写
+时间: 2026-08-08
+用户指令: 编写日历提醒功能的PRD和实施计划，支持钉钉/飞书CalDAV和ICS协议
+执行内容:
+- 更新 docs/PRD.md - 日历提醒功能需求文档
+- 创建 docs/CALENDAR_PLAN.md - 分阶段实施计划
+- 设计CalDAV连接流程（钉钉calendar.dingtalk.com / 飞书caldav.feishu.cn）
+- 设计ICS订阅方案
+- 设计提醒机制（气泡 + 系统通知）
+- 推送到GitHub
+结果: 文档已推送到GitHub，待用户按计划实施
+
 已完成功能 / Completed Features
 
 1. 桌面宠物系统 / Desktop Pet System
