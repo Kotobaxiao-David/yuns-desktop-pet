@@ -93,6 +93,8 @@ class ReminderManager {
     const upcoming = this.calendarService.getUpcomingEvents();
     const now = new Date();
 
+    console.log(`${this.logPrefix} checkReminders: ${upcoming.length} 个即将到来的事件`);
+
     for (const event of upcoming) {
       const eventStart = new Date(event.start);
       const eventEnd = new Date(event.end);
@@ -106,11 +108,18 @@ class ReminderManager {
       // 判断是否已关闭（用户手动关闭）
       const isDismissed = this.dismissedReminders.has(event.id);
 
+      console.log(`${this.logPrefix} 事件: ${event.title}`);
+      console.log(`  开始: ${eventStart.toISOString()}`);
+      console.log(`  结束: ${eventEnd.toISOString()}`);
+      console.log(`  提醒时间: ${reminderTime.toISOString()}`);
+      console.log(`  当前: ${now.toISOString()}`);
+      console.log(`  在窗口期内: ${isInWindow}, 已激活: ${isActive}, 已关闭: ${isDismissed}`);
+
       if (isInWindow) {
         // 在提醒窗口期内
         if (!isActive && !isDismissed) {
           // 新提醒，显示泡泡
-          console.log(`${this.logPrefix} 触发提醒: ${event.title}`);
+          console.log(`${this.logPrefix} ✅ 触发提醒: ${event.title}`);
           this.showReminderBubble(event, eventEnd);
           this.activeReminders.set(event.id, { event, endTime: eventEnd });
         }
@@ -160,13 +169,22 @@ class ReminderManager {
     `;
 
     // 发送持久气泡
+    console.log(`${this.logPrefix} showReminderBubble: petWindow=${this.petWindow ? '存在' : 'null'}`);
+    if (this.petWindow) {
+      console.log(`${this.logPrefix} petWindow.isDestroyed=${this.petWindow.isDestroyed()}`);
+    }
+
     if (this.petWindow && !this.petWindow.isDestroyed()) {
+      console.log(`${this.logPrefix} 发送 show-persistent-bubble IPC 消息`);
       this.petWindow.webContents.send('show-persistent-bubble', {
         title: '会议提醒',
         content: content,
         type: 'meeting',
         eventId: event.id
       });
+      console.log(`${this.logPrefix} IPC 消息已发送`);
+    } else {
+      console.log(`${this.logPrefix} ⚠️ petWindow 不可用，无法发送 IPC`);
     }
 
     // 发送系统通知

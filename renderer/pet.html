@@ -407,9 +407,13 @@
       // ========== 监听持久提醒 ==========
       if (window.electronAPI.onShowPersistentBubble) {
         window.electronAPI.onShowPersistentBubble((data) => {
-          console.log('收到持久提醒:', data);
+          console.log('📥 收到持久提醒 IPC:', data);
+          const bubble = document.getElementById('persistent-bubble');
+          console.log('📥 persistent-bubble 元素:', bubble);
           showPersistentBubble(data.title, data.content, data.type, data.eventId);
         });
+      } else {
+        console.log('⚠️ onShowPersistentBubble 未定义');
       }
 
       // 监听隐藏持久提醒
@@ -431,8 +435,14 @@
      * @param {string} eventId - 事件ID（用于关闭时通知主进程）
      */
     function showPersistentBubble(title, content, type = 'reminder', eventId = null) {
+      console.log('🎨 showPersistentBubble 被调用:', { title, content, type, eventId });
       const bubble = document.getElementById('persistent-bubble');
-      if (!bubble) return;
+      console.log('🎨 bubble 元素:', bubble);
+
+      if (!bubble) {
+        console.log('❌ persistent-bubble 元素不存在！');
+        return;
+      }
 
       // 存储 eventId 到 DOM 元素
       bubble.dataset.eventId = eventId || '';
@@ -443,6 +453,7 @@
       document.getElementById('bubble-body').innerHTML = content;
 
       bubble.classList.remove('hidden');
+      console.log('✅ 泡泡应该已显示，hidden 状态:', bubble.classList.contains('hidden'));
     }
 
     /**

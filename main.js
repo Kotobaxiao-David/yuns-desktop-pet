@@ -1170,10 +1170,13 @@ app.whenReady().then(async () => {
 
   // 启动日历服务和提醒管理器
   const calendarConfig = store.getCalendarConfig();
+  console.log('📅 日历配置:', JSON.stringify(calendarConfig, null, 2));
+
   if (calendarConfig.enabled) {
     console.log('📅 日历提醒功能已启用，正在启动服务...');
     try {
       // 设置提醒管理器的窗口引用
+      console.log('📅 设置 petWindow，petWindow 存在:', !!petWindow);
       reminderManager.setPetWindow(petWindow);
       // 启动日历自动刷新
       calendarService.startAutoRefresh();
@@ -1183,6 +1186,8 @@ app.whenReady().then(async () => {
     } catch (error) {
       console.error('❌ 日历服务启动失败:', error.message);
     }
+  } else {
+    console.log('📅 日历提醒功能未启用');
   }
 
   app.on('activate', () => {
