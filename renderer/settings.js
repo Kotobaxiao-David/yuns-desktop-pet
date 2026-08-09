@@ -2138,6 +2138,17 @@ function bindCalendarEvents() {
   closeCalendarModalBtn?.addEventListener('click', () => {
     closeCalendarModal();
   });
+
+  // ========== CalDAV 指引链接 ==========
+  document.querySelectorAll('.guide-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const url = link.dataset.url;
+      if (url && window.electronAPI && window.electronAPI.openExternal) {
+        window.electronAPI.openExternal(url);
+      }
+    });
+  });
 }
 
 /**

@@ -3569,3 +3569,61 @@ body.dark-mode .form-group label {
 body.dark-mode .form-hint {
   color: #A0A0B0;
 }
+
+/* ========== CalDAV 设置指引样式 ========== */
+
+.caldav-guide {
+  margin-top: 12px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #FFF8E1;
+  border-radius: 8px;
+  border: 1px solid #FFE0B2;
+}
+
+.guide-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.guide-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.guide-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #1976D2;
+  text-decoration: none;
+  padding: 4px 0;
+  transition: opacity 0.2s;
+}
+
+.guide-link:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+.guide-icon {
+  font-size: 14px;
+}
+
+/* 暗色模式适配 */
+body.dark-mode .caldav-guide {
+  background: #2D2D44;
+  border-color: #3D3D5C;
+}
+
+body.dark-mode .guide-header {
+  color: #E4E4E7;
+}
+
+body.dark-mode .guide-link {
+  color: #64B5F6;
+}

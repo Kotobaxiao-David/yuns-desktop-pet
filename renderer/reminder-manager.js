@@ -134,18 +134,29 @@ class ReminderManager {
     const timeStr = this.formatTime(event.start);
     const locationStr = event.location ? ` @ ${event.location}` : '';
 
-    // 消息内容
-    const message = `⏰ ${event.title}\n${timeStr}${locationStr}\n${minutesUntil}分钟后开始`;
+    // 构建 HTML 内容（用于持久气泡）
+    const content = `
+      <div style="font-weight: bold; margin-bottom: 4px;">${event.title}</div>
+      <div>🕐 ${timeStr}</div>
+      ${event.location ? `<div>📍 ${event.location}</div>` : ''}
+      <div style="color: #FF9800; margin-top: 4px; font-weight: 500;">${minutesUntil}分钟后开始</div>
+    `;
 
-    // 1. 通知渲染进程显示气泡
+    // 1. 发送持久气泡（需要点击关闭）
     if (this.petWindow && !this.petWindow.isDestroyed()) {
-      this.petWindow.webContents.send('calendar-reminder', {
-        type: 'reminder',
-        event: event,
-        message: message,
-        minutesUntil: minutesUntil
+      this.petWindow.webContents.send('show-persistent-bubble', {
+        title: '会议提醒',
+        content: content,
+        type: 'meeting'
       });
     }
+
+    // 2. 发送系统通知
+    this.sendNotification(
+      `会议提醒: ${event.title}`,
+      `${timeStr} ${locationStr}\n${minutesUntil}分钟后开始`
+    );
+  }
 
     // 2. 发送系统通知
     this.sendNotification(

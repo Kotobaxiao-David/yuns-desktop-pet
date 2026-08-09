@@ -444,4 +444,23 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.removeAllListeners('calendar-bubble');
   },
 
+  // ========== 持久提醒 API ==========
+
+  // 监听持久提醒事件
+  onShowPersistentBubble: (callback) => {
+    ipcRenderer.on('show-persistent-bubble', (event, data) => callback(data));
+  },
+
+  // 移除持久提醒监听
+  removePersistentBubbleListener: () => {
+    ipcRenderer.removeAllListeners('show-persistent-bubble');
+  },
+
+  // ========== 系统 API ==========
+
+  // 在默认浏览器中打开链接
+  openExternal: async (url) => {
+    return await ipcRenderer.invoke('open-external', url);
+  },
+
 });

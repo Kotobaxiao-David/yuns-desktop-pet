@@ -68,11 +68,88 @@
         transform: translateY(-60px) scale(0.5);
       }
     }
+
+    /* 持久提醒气泡 */
+    .persistent-bubble {
+      position: fixed;
+      bottom: 140px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      min-width: 200px;
+      max-width: 280px;
+      z-index: 200;
+      animation: bubble-in 0.3s ease;
+    }
+
+    .persistent-bubble.hidden {
+      display: none;
+    }
+
+    .bubble-header {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      background: linear-gradient(135deg, #FF9800, #FF5722);
+      color: white;
+      border-radius: 12px 12px 0 0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .bubble-close {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .bubble-close:hover {
+      opacity: 0.8;
+    }
+
+    .bubble-body {
+      padding: 12px;
+      font-size: 13px;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .bubble-arrow {
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 8px solid white;
+    }
+
+    @keyframes bubble-in {
+      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
   </style>
 </head>
 <body>
   <canvas id="pet-canvas" width="128" height="128"></canvas>
   <div id="particles-container"></div>
+
+  <!-- 持久提醒气泡 -->
+  <div id="persistent-bubble" class="persistent-bubble hidden">
+    <div class="bubble-header">
+      <span class="bubble-icon">⏰</span>
+      <span class="bubble-title">会议提醒</span>
+      <button class="bubble-close" id="bubble-close">×</button>
+    </div>
+    <div class="bubble-body" id="bubble-body"></div>
+    <div class="bubble-arrow"></div>
+  </div>
 
   <script src="sprite-generator.js"></script>
   <script src="pet-animator.js"></script>
@@ -326,7 +403,46 @@
         console.log('收到日历气泡:', data);
         animator.showBubble(data.message, data.duration || 5000);
       });
+
+      // ========== 监听持久提醒 ==========
+      if (window.electronAPI.onShowPersistentBubble) {
+        window.electronAPI.onShowPersistentBubble((data) => {
+          console.log('收到持久提醒:', data);
+          showPersistentBubble(data.title, data.content, data.type);
+        });
+      }
     }
+
+    // ========== 持久提醒气泡 ==========
+
+    /**
+     * 显示持久提醒气泡
+     * @param {string} title - 标题
+     * @param {string} content - HTML 内容
+     * @param {string} type - 类型
+     */
+    function showPersistentBubble(title, content, type = 'reminder') {
+      const bubble = document.getElementById('persistent-bubble');
+      if (!bubble) return;
+
+      const icons = { reminder: '⏰', meeting: '📅', warning: '⚠️', info: 'ℹ️' };
+      bubble.querySelector('.bubble-icon').textContent = icons[type] || '⏰';
+      bubble.querySelector('.bubble-title').textContent = title;
+      document.getElementById('bubble-body').innerHTML = content;
+
+      bubble.classList.remove('hidden');
+    }
+
+    /**
+     * 隐藏持久提醒气泡
+     */
+    function hidePersistentBubble() {
+      const bubble = document.getElementById('persistent-bubble');
+      if (bubble) bubble.classList.add('hidden');
+    }
+
+    // 绑定关闭按钮事件
+    document.getElementById('bubble-close').addEventListener('click', hidePersistentBubble);
 
     // ========== 启动系统 ==========
 

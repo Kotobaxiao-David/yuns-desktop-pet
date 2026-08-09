@@ -942,6 +942,13 @@ ipcMain.handle('get-calendar-config', async () => {
   return store.getCalendarConfig();
 });
 
+// 在默认浏览器中打开链接
+ipcMain.handle('open-external', async (event, url) => {
+  const { shell } = require('electron');
+  await shell.openExternal(url);
+  return { success: true };
+});
+
 // ========== 桌面宠物 IPC 处理器 ==========
 
 // 获取屏幕尺寸
