@@ -1,5 +1,5 @@
-// 配置文件 - 多卡片配置系统，支持最新AI模型 (2025年12月更新)
-// 参考文档: https://ai.google.dev/gemini-api/docs/models
+// 配置文件 - 多卡片配置系统，支持最新AI模型 (2026年8月更新)
+// 参考文档: https://models.dev
 module.exports = {
   // 预定义的 API 提供商模板
   providerTemplates: {
@@ -10,134 +10,114 @@ module.exports = {
       brandColor: '#0066FF',
       defaultApiUrl: 'https://api.deepseek.com/v1/chat/completions',
       models: [
-        { 
-          id: 'deepseek-chat', 
-          name: 'DeepSeek-V3 Chat', 
-          description: '最新版本，支持多模态视觉，128K上下文',
-          contextLength: '128K',
-          maxOutput: '8K',
+        {
+          id: 'deepseek-v4-flash',
+          name: 'DeepSeek V4 Flash',
+          description: '最新V4快速版，增强代理能力，百万级上下文',
+          contextLength: '1M',
+          maxOutput: '16K',
           supportsVision: true,
-          recommended: true
+          recommended: true,
+          isNew: true
         },
-        { 
-          id: 'deepseek-reasoner', 
-          name: 'DeepSeek-R1', 
-          description: 'R1推理模型，深度思考，128K上下文',
-          contextLength: '128K',
-          maxOutput: '64K',
-          isReasoner: true,
-          supportsVision: true
-        },
-        { 
-          id: 'deepseek-coder', 
-          name: 'DeepSeek-Coder', 
-          description: '代码专用模型，擅长编程任务',
-          contextLength: '64K',
-          maxOutput: '8K',
-          supportsVision: false
+        {
+          id: 'deepseek-v4-pro',
+          name: 'DeepSeek V4 Pro',
+          description: '最新V4旗舰版，开源MoE，百万级上下文',
+          contextLength: '1M',
+          maxOutput: '16K',
+          supportsVision: true,
+          isNew: true
         }
       ],
-      defaultModel: 'deepseek-chat',
+      defaultModel: 'deepseek-v4-flash',
       authType: 'bearer',
       pricing: {
-        input: '2元/百万tokens',
-        inputCache: '0.2元/百万tokens（缓存命中）',
-        output: '8元/百万tokens'
+        note: '查看 DeepSeek 官网获取最新定价'
       }
     },
 
-    // ========== Google Gemini (2025年12月最新) ==========
+    // ========== Google Gemini ==========
     gemini: {
       name: 'Google Gemini',
       icon: 'gemini',
       brandColor: '#4285F4',
       defaultApiUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
       models: [
-        // ===== Gemini 3 系列 (最新) =====
-        { 
-          id: 'gemini-3-pro-preview', 
-          name: '⭐ Gemini 3 Pro', 
-          description: '最强大的多模态模型，支持文本/图片/视频/音频',
+        // ===== Gemini 3.5 系列 (最新) =====
+        {
+          id: 'gemini-3.5-flash',
+          name: '⭐ Gemini 3.5 Flash',
+          description: '最新快速模型，平衡多模态推理与速度',
           contextLength: '1M',
           maxOutput: '64K',
           supportsVision: true,
-          supportsAudio: true,
-          supportsVideo: true,
           recommended: true,
           isNew: true
         },
-        { 
-          id: 'gemini-3-flash-preview', 
-          name: '⚡ Gemini 3 Flash', 
-          description: '最智能的快速模型，速度与智能兼备',
+        {
+          id: 'gemini-3.5-flash-lite',
+          name: 'Gemini 3.5 Flash Lite',
+          description: '最新轻量版，最快速最具成本效益',
+          contextLength: '1M',
+          maxOutput: '64K',
+          supportsVision: true,
+          isNew: true
+        },
+        // ===== Gemini 3 系列 =====
+        {
+          id: 'gemini-3-pro-preview',
+          name: 'Gemini 3 Pro',
+          description: '强大推理模型，支持文本/图片/视频/音频',
           contextLength: '1M',
           maxOutput: '64K',
           supportsVision: true,
           supportsAudio: true,
-          isNew: true
+          supportsVideo: true
         },
-        { 
-          id: 'gemini-3-pro-image-preview', 
-          name: '🎨 Gemini 3 Pro Image', 
+        {
+          id: 'gemini-3-flash-preview',
+          name: 'Gemini 3 Flash',
+          description: '智能快速模型，速度与智能兼备',
+          contextLength: '1M',
+          maxOutput: '64K',
+          supportsVision: true,
+          supportsAudio: true
+        },
+        {
+          id: 'gemini-3-pro-image-preview',
+          name: 'Gemini 3 Pro Image',
           description: '图像生成专用，支持高质量图片输出',
           contextLength: '64K',
           maxOutput: '32K',
           supportsVision: true,
-          supportsImageGen: true,
-          isNew: true
+          supportsImageGen: true
         },
-
         // ===== Gemini 2.5 系列 =====
-        { 
-          id: 'gemini-2.5-flash', 
-          name: 'Gemini 2.5 Flash', 
-          description: '均衡模型，100万tokens上下文，支持视觉',
-          contextLength: '1M',
-          maxOutput: '8K',
-          supportsVision: true
-        },
-        { 
-          id: 'gemini-2.5-flash-lite', 
-          name: 'Gemini 2.5 Flash Lite', 
-          description: '轻量版，最快速最具成本效益',
-          contextLength: '1M',
-          maxOutput: '8K',
-          supportsVision: true
-        },
-        { 
-          id: 'gemini-2.5-pro', 
-          name: 'Gemini 2.5 Pro', 
+        {
+          id: 'gemini-2.5-pro',
+          name: 'Gemini 2.5 Pro',
           description: '强大推理，200万tokens上下文，擅长编码',
           contextLength: '2M',
-          maxOutput: '8K',
-          supportsVision: true
-        },
-
-        // ===== Gemini 2.0 系列 =====
-        { 
-          id: 'gemini-2.0-flash', 
-          name: 'Gemini 2.0 Flash', 
-          description: '快速稳定，支持多模态',
-          contextLength: '1M',
-          maxOutput: '8K',
-          supportsVision: true
-        },
-        { 
-          id: 'gemini-2.0-flash-lite', 
-          name: 'Gemini 2.0 Flash Lite', 
-          description: '高性价比，适合大规模调用',
-          contextLength: '1M',
-          maxOutput: '8K',
-          supportsVision: true
-        },
-        { 
-          id: 'gemini-2.0-flash-thinking-exp', 
-          name: 'Gemini 2.0 Flash Thinking', 
-          description: '思考模式，复杂推理任务专用',
-          contextLength: '1M',
           maxOutput: '64K',
           supportsVision: true,
           isReasoner: true
+        },
+        {
+          id: 'gemini-2.5-flash',
+          name: 'Gemini 2.5 Flash',
+          description: '均衡模型，100万tokens上下文，支持视觉',
+          contextLength: '1M',
+          maxOutput: '64K',
+          supportsVision: true
+        },
+        {
+          id: 'gemini-2.5-flash-lite',
+          name: 'Gemini 2.5 Flash Lite',
+          description: '轻量版，最快速最具成本效益',
+          contextLength: '1M',
+          maxOutput: '64K',
+          supportsVision: true
         }
       ],
       defaultModel: 'gemini-2.5-flash',
@@ -156,96 +136,114 @@ module.exports = {
       brandColor: '#10A37F',
       defaultApiUrl: 'https://api.openai.com/v1/chat/completions',
       models: [
+        // ===== GPT-5 系列 (最新) =====
+        {
+          id: 'gpt-5',
+          name: '⭐ GPT-5',
+          description: '最新旗舰模型，复杂专业任务',
+          contextLength: '256K',
+          maxOutput: '64K',
+          supportsVision: true,
+          recommended: true,
+          isNew: true
+        },
+        {
+          id: 'gpt-5-mini',
+          name: 'GPT-5 Mini',
+          description: 'GPT-5轻量版，快速高效',
+          contextLength: '256K',
+          maxOutput: '64K',
+          supportsVision: true,
+          isNew: true
+        },
+        // ===== GPT-4.1 系列 =====
+        {
+          id: 'gpt-4.1',
+          name: 'GPT-4.1',
+          description: '新一代GPT-4，编码与代理任务优化',
+          contextLength: '1M',
+          maxOutput: '32K',
+          supportsVision: true,
+          isNew: true
+        },
+        {
+          id: 'gpt-4.1-mini',
+          name: 'GPT-4.1 Mini',
+          description: 'GPT-4.1轻量版，性价比高',
+          contextLength: '1M',
+          maxOutput: '32K',
+          supportsVision: true,
+          isNew: true
+        },
+        {
+          id: 'gpt-4.1-nano',
+          name: 'GPT-4.1 Nano',
+          description: '超轻量版，分类路由等简单任务',
+          contextLength: '1M',
+          maxOutput: '32K',
+          isNew: true
+        },
         // ===== GPT-4o 系列 =====
-        { 
-          id: 'gpt-4o', 
-          name: '⭐ GPT-4o', 
-          description: '最新旗舰模型，多模态，128K上下文',
+        {
+          id: 'gpt-4o',
+          name: 'GPT-4o',
+          description: '多模态旗舰，128K上下文',
           contextLength: '128K',
           maxOutput: '16K',
-          supportsVision: true,
-          recommended: true
+          supportsVision: true
         },
-        { 
-          id: 'gpt-4o-mini', 
-          name: 'GPT-4o Mini', 
+        {
+          id: 'gpt-4o-mini',
+          name: 'GPT-4o Mini',
           description: '快速高效，128K上下文，性价比高',
           contextLength: '128K',
           maxOutput: '16K',
           supportsVision: true
         },
-        { 
-          id: 'chatgpt-4o-latest', 
-          name: 'ChatGPT-4o Latest', 
-          description: '最新ChatGPT版本，持续更新',
-          contextLength: '128K',
-          maxOutput: '16K',
-          supportsVision: true
+        // ===== o系列推理模型 =====
+        {
+          id: 'o3-pro',
+          name: '🧠 o3 Pro',
+          description: '最强推理模型，高难度技术推理',
+          contextLength: '200K',
+          maxOutput: '100K',
+          supportsVision: true,
+          isReasoner: true,
+          isNew: true
         },
-
-        // ===== o1/o3 推理系列 =====
-        { 
-          id: 'o1', 
-          name: '🧠 o1', 
+        {
+          id: 'o4-mini',
+          name: 'o4 Mini',
+          description: '最新轻量推理模型，快速高效',
+          contextLength: '200K',
+          maxOutput: '100K',
+          supportsVision: true,
+          isReasoner: true,
+          isNew: true
+        },
+        {
+          id: 'o3-mini',
+          name: 'o3 Mini',
+          description: '经济推理模型，速度更快',
+          contextLength: '200K',
+          maxOutput: '100K',
+          supportsVision: true,
+          isReasoner: true
+        },
+        {
+          id: 'o1',
+          name: 'o1',
           description: '深度推理模型，擅长复杂问题分析',
           contextLength: '200K',
           maxOutput: '100K',
           supportsVision: true,
-          isReasoner: true,
-          isNew: true
-        },
-        { 
-          id: 'o1-mini', 
-          name: 'o1 Mini', 
-          description: '快速推理，性价比高',
-          contextLength: '128K',
-          maxOutput: '64K',
-          supportsVision: true,
           isReasoner: true
-        },
-        { 
-          id: 'o3-mini', 
-          name: '⚡ o3 Mini', 
-          description: '最新推理模型，速度更快',
-          contextLength: '200K',
-          maxOutput: '100K',
-          supportsVision: true,
-          isReasoner: true,
-          isNew: true
-        },
-
-        // ===== GPT-4 系列 =====
-        { 
-          id: 'gpt-4-turbo', 
-          name: 'GPT-4 Turbo', 
-          description: 'GPT-4增强版，支持视觉',
-          contextLength: '128K',
-          maxOutput: '4K',
-          supportsVision: true
-        },
-        { 
-          id: 'gpt-4', 
-          name: 'GPT-4', 
-          description: 'GPT-4基础版',
-          contextLength: '8K',
-          maxOutput: '4K'
-        },
-
-        // ===== GPT-3.5 系列 =====
-        { 
-          id: 'gpt-3.5-turbo', 
-          name: 'GPT-3.5 Turbo', 
-          description: '经济实惠，快速响应',
-          contextLength: '16K',
-          maxOutput: '4K'
         }
       ],
       defaultModel: 'gpt-4o',
       authType: 'bearer',
       pricing: {
-        'gpt-4o': '输入 $2.5/M, 输出 $10/M',
-        'gpt-4o-mini': '输入 $0.15/M, 输出 $0.6/M',
-        'o1': '输入 $15/M, 输出 $60/M'
+        note: '查看 OpenAI 官网获取最新定价'
       }
     },
 
@@ -256,47 +254,56 @@ module.exports = {
       brandColor: '#D97706',
       defaultApiUrl: 'https://api.anthropic.com/v1/messages',
       models: [
-        { 
-          id: 'claude-sonnet-4-20250514', 
-          name: '⭐ Claude Sonnet 4', 
-          description: '最新版本，强大推理能力',
+        {
+          id: 'claude-opus-5',
+          name: '🧠 Claude Opus 5',
+          description: '最强Claude模型，编码代理与复杂推理',
+          contextLength: '200K',
+          maxOutput: '64K',
+          supportsVision: true,
+          isReasoner: true,
+          isNew: true
+        },
+        {
+          id: 'claude-sonnet-5',
+          name: '⭐ Claude Sonnet 5',
+          description: '新一代Claude，编码规划与日常代理',
           contextLength: '200K',
           maxOutput: '64K',
           supportsVision: true,
           recommended: true,
           isNew: true
         },
-        { 
-          id: 'claude-3-5-sonnet-20241022', 
-          name: 'Claude 3.5 Sonnet', 
-          description: '均衡模型，智能与速度兼备',
+        {
+          id: 'claude-sonnet-4-6',
+          name: 'Claude Sonnet 4.6',
+          description: '主力工作模型，编码分析与代理',
           contextLength: '200K',
-          maxOutput: '8K',
+          maxOutput: '64K',
           supportsVision: true
         },
-        { 
-          id: 'claude-3-5-haiku-20241022', 
-          name: 'Claude 3.5 Haiku', 
-          description: '最快速的Claude，适合实时交互',
+        {
+          id: 'claude-opus-4-8',
+          name: 'Claude Opus 4.8',
+          description: '高端推理模型，复杂编码与规划',
           contextLength: '200K',
-          maxOutput: '8K',
-          supportsVision: true
+          maxOutput: '64K',
+          supportsVision: true,
+          isReasoner: true
         },
-        { 
-          id: 'claude-3-opus-20240229', 
-          name: 'Claude 3 Opus', 
-          description: '最强大的Claude 3，复杂任务专用',
+        {
+          id: 'claude-haiku-4-5',
+          name: 'Claude Haiku 4.5',
+          description: '快速轻量模型，实时交互与简单任务',
           contextLength: '200K',
-          maxOutput: '4K',
+          maxOutput: '64K',
           supportsVision: true
         }
       ],
-      defaultModel: 'claude-sonnet-4-20250514',
-      authType: 'anthropic', // 特殊认证方式
+      defaultModel: 'claude-sonnet-4-6',
+      authType: 'anthropic',
       pricing: {
-        'claude-sonnet-4': '输入 $3/M, 输出 $15/M',
-        'claude-3-5-sonnet': '输入 $3/M, 输出 $15/M',
-        'claude-3-5-haiku': '输入 $0.25/M, 输出 $1.25/M'
+        note: '查看 Anthropic 官网获取最新定价'
       }
     },
 
@@ -307,39 +314,58 @@ module.exports = {
       brandColor: '#8B5CF6',
       defaultApiUrl: 'https://api.siliconflow.cn/v1/chat/completions',
       models: [
-        { 
-          id: 'Qwen/Qwen2.5-72B-Instruct', 
-          name: 'Qwen2.5 72B', 
-          description: '通义千问最新版本，中文能力强',
-          contextLength: '32K',
-          maxOutput: '8K',
-          supportsVision: false,
-          recommended: true
+        {
+          id: 'Qwen/Qwen3.5-27B',
+          name: '⭐ Qwen3.5 27B',
+          description: '最新通义千问，多模态视觉语言模型',
+          contextLength: '262K',
+          maxOutput: '32K',
+          supportsVision: true,
+          recommended: true,
+          isNew: true
         },
-        { 
-          id: 'Qwen/Qwen2.5-Coder-32B-Instruct', 
-          name: 'Qwen2.5 Coder 32B', 
-          description: '代码专用模型',
-          contextLength: '32K',
-          maxOutput: '8K'
+        {
+          id: 'Qwen/Qwen3-Coder-30B-A3B-Instruct',
+          name: 'Qwen3 Coder 30B',
+          description: '代码专用模型，软件代理与仓库编辑',
+          contextLength: '262K',
+          maxOutput: '32K',
+          isNew: true
         },
-        { 
-          id: 'deepseek-ai/DeepSeek-V3', 
-          name: 'DeepSeek-V3', 
-          description: 'DeepSeek V3 托管版',
-          contextLength: '64K',
-          maxOutput: '8K',
-          supportsVision: true
+        {
+          id: 'zai-org/GLM-5',
+          name: 'GLM-5',
+          description: '智谱最新旗舰，混合推理与编码',
+          contextLength: '205K',
+          maxOutput: '32K',
+          isNew: true
         },
-        { 
-          id: 'THUDM/glm-4-9b-chat', 
-          name: 'GLM-4 9B', 
-          description: '智谱GLM-4，均衡实用',
-          contextLength: '128K',
-          maxOutput: '4K'
+        {
+          id: 'zai-org/GLM-5.2',
+          name: 'GLM-5.2',
+          description: '智谱开源旗舰，百万级上下文编码代理',
+          contextLength: '1M',
+          maxOutput: '32K',
+          isNew: true
+        },
+        {
+          id: 'deepseek-ai/DeepSeek-V4-Flash',
+          name: 'DeepSeek V4 Flash',
+          description: 'DeepSeek V4快速版，增强代理能力',
+          contextLength: '1M',
+          maxOutput: '16K',
+          isNew: true
+        },
+        {
+          id: 'deepseek-ai/DeepSeek-V4-Pro',
+          name: 'DeepSeek V4 Pro',
+          description: 'DeepSeek V4旗舰版，百万级上下文',
+          contextLength: '1M',
+          maxOutput: '16K',
+          isNew: true
         }
       ],
-      defaultModel: 'Qwen/Qwen2.5-72B-Instruct',
+      defaultModel: 'Qwen/Qwen3.5-27B',
       authType: 'bearer',
       pricing: {
         note: '查看硅基流动官网获取最新定价'
@@ -387,31 +413,48 @@ module.exports = {
       brandColor: '#6366F1',
       defaultApiUrl: 'https://api.moonshot.cn/v1/chat/completions',
       models: [
-        { 
-          id: 'moonshot-v1-128k', 
-          name: 'Moonshot v1 128K', 
-          description: '超长上下文，128K tokens',
-          contextLength: '128K',
-          maxOutput: '8K',
-          recommended: true
+        {
+          id: 'kimi-k3',
+          name: '⭐ Kimi K3',
+          description: '最新旗舰模型，百万级上下文，多模态代理',
+          contextLength: '1M',
+          maxOutput: '64K',
+          supportsVision: true,
+          recommended: true,
+          isNew: true
         },
-        { 
-          id: 'moonshot-v1-32k', 
-          name: 'Moonshot v1 32K', 
-          description: '均衡模型，32K上下文',
-          contextLength: '32K',
-          maxOutput: '8K'
+        {
+          id: 'kimi-k2.7-code',
+          name: 'Kimi K2.7 Code',
+          description: '代码专用模型，软件代理与仓库编辑',
+          contextLength: '262K',
+          maxOutput: '32K',
+          isNew: true
         },
-        { 
-          id: 'moonshot-v1-8k', 
-          name: 'Moonshot v1 8K', 
-          description: '快速响应，8K上下文',
-          contextLength: '8K',
-          maxOutput: '4K'
+        {
+          id: 'kimi-k2.6',
+          name: 'Kimi K2.6',
+          description: '多模态代理模型，视觉理解与编码',
+          contextLength: '262K',
+          maxOutput: '32K',
+          supportsVision: true,
+          isNew: true
+        },
+        {
+          id: 'kimi-k2.5',
+          name: 'Kimi K2.5',
+          description: '均衡模型，多模态代理与编码',
+          contextLength: '262K',
+          maxOutput: '32K',
+          supportsVision: true,
+          isNew: true
         }
       ],
-      defaultModel: 'moonshot-v1-128k',
-      authType: 'bearer'
+      defaultModel: 'kimi-k3',
+      authType: 'bearer',
+      pricing: {
+        note: '查看月之暗面官网获取最新定价'
+      }
     },
 
     // ========== 智谱 (Zhipu) ==========
@@ -421,41 +464,55 @@ module.exports = {
       brandColor: '#2563EB',
       defaultApiUrl: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
       models: [
-        { 
-          id: 'glm-4-plus', 
-          name: 'GLM-4 Plus', 
-          description: '最新版本，综合能力强',
-          contextLength: '128K',
-          maxOutput: '8K',
+        {
+          id: 'glm-5',
+          name: '⭐ GLM-5',
+          description: '最新旗舰模型，混合推理与编码代理',
+          contextLength: '205K',
+          maxOutput: '32K',
           supportsVision: true,
-          recommended: true
+          recommended: true,
+          isNew: true
         },
-        { 
-          id: 'glm-4-0520', 
-          name: 'GLM-4', 
-          description: '智谱旗舰模型',
-          contextLength: '128K',
-          maxOutput: '4K',
-          supportsVision: true
+        {
+          id: 'glm-5.1',
+          name: 'GLM-5.1',
+          description: '编码专用模型，代理工程与终端任务',
+          contextLength: '200K',
+          maxOutput: '32K',
+          isNew: true
         },
-        { 
-          id: 'glm-4-flash', 
-          name: 'GLM-4 Flash', 
-          description: '免费版，快速响应',
-          contextLength: '128K',
-          maxOutput: '4K'
+        {
+          id: 'glm-5.2',
+          name: 'GLM-5.2',
+          description: '开源旗舰，百万级上下文编码代理',
+          contextLength: '1M',
+          maxOutput: '32K',
+          isNew: true
         },
-        { 
-          id: 'glm-4v-plus', 
-          name: 'GLM-4V Plus', 
-          description: '视觉增强版',
-          contextLength: '8K',
-          maxOutput: '4K',
-          supportsVision: true
+        {
+          id: 'glm-5v-turbo',
+          name: 'GLM-5V Turbo',
+          description: '视觉快速模型，截图文档与多模态理解',
+          contextLength: '200K',
+          maxOutput: '32K',
+          supportsVision: true,
+          isNew: true
+        },
+        {
+          id: 'glm-4.7-flash',
+          name: 'GLM-4.7 Flash',
+          description: '经济快速模型，日常编码与路由',
+          contextLength: '200K',
+          maxOutput: '32K',
+          isNew: true
         }
       ],
-      defaultModel: 'glm-4-plus',
-      authType: 'bearer'
+      defaultModel: 'glm-5',
+      authType: 'bearer',
+      pricing: {
+        note: '查看智谱官网获取最新定价'
+      }
     },
 
     // ========== Groq ==========
@@ -465,35 +522,30 @@ module.exports = {
       brandColor: '#F55036',
       defaultApiUrl: 'https://api.groq.com/openai/v1/chat/completions',
       models: [
-        { 
-          id: 'llama-3.3-70b-versatile', 
-          name: 'Llama 3.3 70B', 
-          description: '最新Llama，极速响应',
+        {
+          id: 'llama-3.3-70b-versatile',
+          name: '⭐ Llama 3.3 70B',
+          description: '最新Llama，极速响应，128K上下文',
           contextLength: '128K',
           maxOutput: '32K',
-          recommended: true,
+          recommended: true
+        },
+        {
+          id: 'qwen/qwen3.6-27b',
+          name: 'Qwen3.6 27B',
+          description: '通义千问最新版，多模态视觉语言模型',
+          contextLength: '262K',
+          maxOutput: '32K',
+          supportsVision: true,
           isNew: true
         },
-        { 
-          id: 'llama-3.1-70b-versatile', 
-          name: 'Llama 3.1 70B', 
-          description: '强大的开源模型',
+        {
+          id: 'llama-3.1-8b-instant',
+          name: 'Llama 3.1 8B Instant',
+          description: '超快速轻量模型，实时响应',
           contextLength: '128K',
-          maxOutput: '8K'
-        },
-        { 
-          id: 'mixtral-8x7b-32768', 
-          name: 'Mixtral 8x7B', 
-          description: 'MoE模型，高效推理',
-          contextLength: '32K',
-          maxOutput: '4K'
-        },
-        { 
-          id: 'gemma2-9b-it', 
-          name: 'Gemma 2 9B', 
-          description: 'Google Gemma，轻量高效',
-          contextLength: '8K',
-          maxOutput: '4K'
+          maxOutput: '8K',
+          isNew: true
         }
       ],
       defaultModel: 'llama-3.3-70b-versatile',
@@ -511,64 +563,71 @@ module.exports = {
       defaultApiUrl: 'https://your-api-endpoint.com/v1/chat/completions',
       models: [
         // ===== OpenAI 系列（中转站最常用）=====
-        { 
-          id: 'gpt-4o', 
-          name: '⭐ GPT-4o', 
+        {
+          id: 'gpt-5',
+          name: '⭐ GPT-5',
           description: 'OpenAI 最新旗舰，中转站最常用',
-          recommended: true
+          recommended: true,
+          isNew: true
         },
-        { 
-          id: 'gpt-4o-mini', 
-          name: 'GPT-4o Mini', 
+        {
+          id: 'gpt-4.1',
+          name: 'GPT-4.1',
+          description: '新一代GPT-4，编码与代理优化',
+          isNew: true
+        },
+        {
+          id: 'gpt-4o',
+          name: 'GPT-4o',
+          description: '多模态旗舰，128K上下文'
+        },
+        {
+          id: 'gpt-4o-mini',
+          name: 'GPT-4o Mini',
           description: '性价比高，速度快'
         },
-        { 
-          id: 'gpt-4-turbo', 
-          name: 'GPT-4 Turbo', 
-          description: 'GPT-4 增强版'
-        },
-        { 
-          id: 'gpt-3.5-turbo', 
-          name: 'GPT-3.5 Turbo', 
-          description: '经济实惠'
-        },
         // ===== Claude 系列 =====
-        { 
-          id: 'claude-3-5-sonnet-20241022', 
-          name: 'Claude 3.5 Sonnet', 
-          description: 'Anthropic 均衡模型'
+        {
+          id: 'claude-sonnet-5',
+          name: 'Claude Sonnet 5',
+          description: '新一代Claude，编码规划与代理',
+          isNew: true
         },
-        { 
-          id: 'claude-3-5-haiku-20241022', 
-          name: 'Claude 3.5 Haiku', 
-          description: '快速响应'
+        {
+          id: 'claude-sonnet-4-6',
+          name: 'Claude Sonnet 4.6',
+          description: 'Anthropic 主力模型'
         },
         // ===== DeepSeek 系列 =====
-        { 
-          id: 'deepseek-chat', 
-          name: 'DeepSeek Chat', 
-          description: 'DeepSeek V3 对话模型'
+        {
+          id: 'deepseek-v4-flash',
+          name: 'DeepSeek V4 Flash',
+          description: '最新V4快速版，百万级上下文',
+          isNew: true
         },
-        { 
-          id: 'deepseek-reasoner', 
-          name: 'DeepSeek R1', 
-          description: '深度推理'
+        {
+          id: 'deepseek-v4-pro',
+          name: 'DeepSeek V4 Pro',
+          description: '最新V4旗舰版',
+          isNew: true
         },
         // ===== 其他常用 =====
-        { 
-          id: 'qwen-turbo', 
-          name: '通义千问 Turbo', 
-          description: '阿里云通义千问'
+        {
+          id: 'glm-5',
+          name: 'GLM-5',
+          description: '智谱最新旗舰',
+          isNew: true
         },
-        { 
-          id: 'glm-4', 
-          name: 'GLM-4', 
-          description: '智谱 GLM-4'
+        {
+          id: 'kimi-k3',
+          name: 'Kimi K3',
+          description: '月之暗面最新旗舰',
+          isNew: true
         },
         // ===== 自定义输入 =====
-        { 
-          id: '__custom_input__', 
-          name: '📝 手动输入模型 ID...', 
+        {
+          id: '__custom_input__',
+          name: '📝 手动输入模型 ID...',
           description: '输入中转站支持的任意模型',
           isCustomInput: true
         }
