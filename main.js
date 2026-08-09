@@ -858,6 +858,12 @@ const calendarService = require('./renderer/calendar-service');
 const ReminderManager = require('./renderer/reminder-manager');
 const reminderManager = new ReminderManager(calendarService);
 
+// 设置刷新完成回调，每次刷新后自动检查提醒
+calendarService.onRefreshComplete = (events) => {
+  console.log('📅 刷新完成回调触发，检查提醒...');
+  reminderManager.checkReminders();
+};
+
 // 列出 CalDAV 服务器上的可用日历
 ipcMain.handle('list-caldav-calendars', async (event, { server, username, password }) => {
   try {
@@ -1178,11 +1184,17 @@ app.whenReady().then(async () => {
       // 设置提醒管理器的窗口引用
       console.log('📅 设置 petWindow，petWindow 存在:', !!petWindow);
       reminderManager.setPetWindow(petWindow);
-      // 启动日历自动刷新
-      calendarService.startAutoRefresh();
-      // 启动提醒管理器
-      reminderManager.start();
-      console.log('✅ 日历提醒服务已启动');
+
+      // 先启动日历自动刷新，等待初始刷新完成后再启动提醒管理器
+      calendarService.startAutoRefresh().then(() => {
+        console.log('📅 初始刷新完成，启动提醒管理器');
+        reminderManager.start();
+        console.log('✅ 日历提醒服务已启动');
+      }).catch(err => {
+        console.error('❌ 初始刷新失败:', err.message);
+        // 即使刷新失败也启动提醒管理器
+        reminderManager.start();
+      });
     } catch (error) {
       console.error('❌ 日历服务启动失败:', error.message);
     }

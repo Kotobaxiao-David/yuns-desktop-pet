@@ -18,6 +18,8 @@ class CalendarService {
     this.refreshTimer = null;
     // 日志前缀
     this.logPrefix = '[CalendarService]';
+    // 刷新完成回调
+    this.onRefreshComplete = null;
   }
 
   /**
@@ -248,6 +250,12 @@ class CalendarService {
     this.events = allEvents;
     console.log(`${this.logPrefix} 刷新完成，共 ${allEvents.length} 个事件`);
 
+    // 调用刷新完成回调
+    if (this.onRefreshComplete) {
+      console.log(`${this.logPrefix} 调用刷新完成回调`);
+      this.onRefreshComplete(allEvents);
+    }
+
     return allEvents;
   }
 
@@ -283,6 +291,7 @@ class CalendarService {
   /**
    * 启动自动刷新
    * 从配置中读取用户设置的刷新间隔
+   * @returns {Promise} 初始刷新完成的 Promise
    */
   startAutoRefresh() {
     // 读取用户配置的刷新间隔（分钟），默认5分钟
@@ -292,17 +301,18 @@ class CalendarService {
 
     console.log(`${this.logPrefix} 启动自动刷新，间隔 ${refreshMinutes} 分钟`);
 
-    // 立即刷新一次
-    this.refreshAll().catch(err => {
-      console.error(`${this.logPrefix} 初始刷新失败:`, err.message);
-    });
-
     // 设置定时刷新
     this.refreshTimer = setInterval(() => {
       this.refreshAll().catch(err => {
         console.error(`${this.logPrefix} 定时刷新失败:`, err.message);
       });
     }, this.refreshInterval);
+
+    // 立即刷新一次，返回 Promise
+    return this.refreshAll().catch(err => {
+      console.error(`${this.logPrefix} 初始刷新失败:`, err.message);
+      throw err;
+    });
   }
 
   /**
