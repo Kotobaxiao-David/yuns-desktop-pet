@@ -7,6 +7,42 @@
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-08-09
+
+### Added / 新增
+- **日历提醒系统**
+  - CalDAV 日历集成（支持钉钉、飞书）
+  - ICS 订阅链接支持
+  - 每5分钟自动刷新日历（用户可配置1-60分钟）
+  - 持久会议提醒气泡（从提醒时间到会议结束持续显示）
+  - 点击关闭按钮手动关闭提醒
+  - 会议结束后自动消失
+  - macOS 系统通知
+  - 每日日程摘要（定时提醒）
+  - CalDAV 设置指引（飞书/钉钉官方文档链接）
+
+- **全量模型更新**
+  - DeepSeek: 新增 V4 Flash、V4 Pro
+  - OpenAI: 新增 GPT-5、GPT-4.1、o3-pro、o4-mini
+  - Claude: 更新为 Sonnet 4.6、Opus 5、Sonnet 5
+  - Gemini: 新增 3.5 Flash、3.5 Flash Lite
+  - 智谱: 更新为 GLM-5 系列
+  - Kimi: 更新为 K3、K2.7-Code、K2.6、K2.5
+  - 硅基流动: 新增 Qwen3.5、GLM-5、DeepSeek-V4
+
+### Fixed / 修复
+- 修复 Notification is not defined 错误（使用 Electron Notification）
+- 修复 getUpcomingEvents 过滤逻辑（包含正在进行中的事件）
+- 修复时序问题（初始刷新完成后再启动提醒管理器）
+- 修复泡泡不可见问题（动态调整窗口大小）
+- 桌宠固定位置，不再随机移动
+
+### Technical / 技术
+- 新增 `renderer/calendar-service.js` - 日历服务核心
+- 新增 `renderer/reminder-manager.js` - 提醒管理器
+- 添加 IPC: refresh-calendar、get-today-events、dismiss-reminder、resize-pet-window
+- 添加 IPC: list-caldav-calendars、test-calendar-connection
+
 ## [2.3.0] - 2026-08-08
 
 ### Added / 新增

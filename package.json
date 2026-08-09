@@ -1,7 +1,7 @@
 {
   "name": "ai-desktop-pet",
   "productName": "Yuns桌面助手",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "智能桌面宠物 - Yuns多模型对话助手 + MCP工具调用",
   "main": "main.js",
   "scripts": {

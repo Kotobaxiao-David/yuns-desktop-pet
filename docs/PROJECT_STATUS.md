@@ -1,17 +1,18 @@
 项目概述 / Project Overview
 
 项目名称 / Project Name: Yuns桌面助手 / Yuns Desktop Assistant
-项目描述 / Project Description: 智能桌面宠物 - 多模型AI对话助手 + MCP工具调用 / Smart Desktop Pet - Multi-model AI Chat Assistant + MCP Tool Calling
+项目描述 / Project Description: 智能桌面宠物 - 多模型AI对话助手 + MCP工具调用 + 日历提醒 / Smart Desktop Pet - Multi-model AI Chat Assistant + MCP Tool Calling + Calendar Reminder
 目标用户 / Target Users:
 - macOS 桌面用户 / macOS Desktop Users
 - 二次元文化爱好者 / Anime Culture Enthusiasts
 - 需要AI对话助手的用户 / Users Needing AI Chat Assistant
+- 需要日历提醒的用户 / Users Needing Calendar Reminders
 
 当前状态 / Current Status
 
 开发阶段 / Development Phase: 功能完善 / Feature Enhancement
-最后更新 / Last Updated: 2026-08-08
-版本 / Version: 2.3.0
+最后更新 / Last Updated: 2026-08-09
+版本 / Version: 2.4.0
 
 用户操作记录 / User Operation History
 
@@ -42,35 +43,57 @@
 - 推送到GitHub
 结果: 文档已推送到GitHub，待用户按计划实施
 
-操作3：日历提醒功能PRD编写
-时间: 2026-08-08
-用户指令: 编写日历提醒功能的PRD和实施计划，支持钉钉/飞书CalDAV和ICS协议
+操作3：日历提醒功能实施
+时间: 2026-08-09
+用户指令: 实现日历提醒功能，支持钉钉/飞书CalDAV和ICS协议
 执行内容:
-- 更新 docs/PRD.md - 日历提醒功能需求文档
-- 创建 docs/CALENDAR_PLAN.md - 分阶段实施计划
-- 设计CalDAV连接流程（钉钉calendar.dingtalk.com / 飞书caldav.feishu.cn）
-- 设计ICS订阅方案
-- 设计提醒机制（气泡 + 系统通知）
-- 推送到GitHub
-结果: 文档已推送到GitHub，待用户按计划实施
+- 实现 calendar-service.js（CalDAV/ICS日历服务）
+- 实现 reminder-manager.js（提醒管理器）
+- 添加持久会议提醒气泡（窗口期显示）
+- 添加CalDAV设置指引（飞书/钉钉官方文档链接）
+- 修复多个bug（Notification、时序、窗口大小）
+- 桌宠固定位置
+- 全量更新模型列表至2026年8月最新版本
+结果: 日历提醒功能完成，版本升级至2.4.0
+
+操作4：全量模型更新
+时间: 2026-08-09
+用户指令: 根据models.dev更新所有过时模型
+执行内容:
+- 更新DeepSeek: V4 Flash、V4 Pro
+- 更新OpenAI: GPT-5、GPT-4.1、o3-pro、o4-mini
+- 更新Claude: Sonnet 4.6、Opus 5、Sonnet 5
+- 更新Gemini: 3.5 Flash、3.5 Flash Lite
+- 更新智谱: GLM-5系列
+- 更新Kimi: K3、K2.7-Code、K2.6、K2.5
+- 更新硅基流动: Qwen3.5、GLM-5、DeepSeek-V4
+结果: 所有模型更新至最新版本
 
 已完成功能 / Completed Features
 
 1. 桌面宠物系统 / Desktop Pet System
  - 像素风猫耳少女角色（32x32, 4x缩放）
- - 桌面闲逛功能（行走/站立状态切换）
+ - 固定位置显示（屏幕底部中央）
  - 点击互动系统（摸头/拍身体/双击/右键/拖拽）
  - 心情系统（0-100心情值，影响对话）
  - 对话气泡（定时问候/系统提醒）
  - 粒子特效（爱心飘浮效果）
 
-2. AI对话系统 / AI Chat System
+2. 日历提醒系统 / Calendar Reminder System
+ - CalDAV日历集成（钉钉、飞书）
+ - ICS订阅链接支持
+ - 自动刷新（默认5分钟，可配置）
+ - 持久会议提醒气泡（窗口期显示）
+ - 每日日程摘要
+ - CalDAV设置指引
+
+3. AI对话系统 / AI Chat System
  - 多模型支持（DeepSeek、Gemini、OpenAI、Claude等10+提供商）
  - MCP工具调用
  - 视觉分析（截屏分析）
  - Gemini API中转站
 
-3. macOS优化 / macOS Optimization
+4. macOS优化 / macOS Optimization
  - 透明窗口设置
  - Retina显示支持
  - 构建配置（dmg/zip）

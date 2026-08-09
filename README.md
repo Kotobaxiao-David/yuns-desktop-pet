@@ -5,13 +5,13 @@
 </p>
 
 <p align="center">
-  <b>智能桌面宠物 - 多模型AI对话助手 + MCP工具调用</b>
+  <b>智能桌面宠物 - 多模型AI对话助手 + MCP工具调用 + 日历提醒</b>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Electron-28.0.0-47848F?logo=electron" alt="Electron"/>
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License"/>
-  <img src="https://img.shields.io/badge/Version-2.3.0-blue" alt="Version"/>
+  <img src="https://img.shields.io/badge/Version-2.4.0-blue" alt="Version"/>
   <img src="https://img.shields.io/badge/Platform-macOS-0078D6?logo=apple" alt="Platform"/>
 </p>
 
@@ -19,17 +19,34 @@
 
 ## ✨ 功能特性
 
-### 🎮 桌面宠物系统（新增！）
+### 📅 日历提醒系统（新增！）
+
+**CalDAV 日历集成**
+- 支持钉钉、飞书 CalDAV 日历
+- 支持 ICS 订阅链接
+- 每5分钟自动刷新（可配置1-60分钟）
+
+**持久会议提醒**
+- 会议开始前X分钟显示提醒泡泡
+- 泡泡持续显示到会议结束
+- 点击关闭按钮手动关闭
+- 显示会议标题、时间、地点
+
+**每日日程摘要**
+- 定时显示今日日程
+- 一键查看所有会议
+
+**设置指引**
+- 飞书/钉钉官方 CalDAV 配置指引
+
+---
+
+### 🎮 桌面宠物系统
 
 **二次元像素风角色**
 - 程序化生成的猫耳少女像素角色
 - 32x32 像素，4x 缩放渲染
 - 粉色系配色，二次元风格
-
-**桌面闲逛**
-- 桌宠在屏幕底部随机移动
-- 行走、站立、坐下、睡觉等多种状态
-- 自动避开屏幕边缘
 
 **互动系统**
 - 单击摸头：显示爱心特效，心情+10
