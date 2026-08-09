@@ -158,13 +158,6 @@ class ReminderManager {
     );
   }
 
-    // 2. 发送系统通知
-    this.sendNotification(
-      `会议提醒: ${event.title}`,
-      `${timeStr}${locationStr}\n${minutesUntil}分钟后开始`
-    );
-  }
-
   /**
    * 发送 macOS 系统通知
    * @param {string} title - 通知标题
