@@ -408,7 +408,15 @@
       if (window.electronAPI.onShowPersistentBubble) {
         window.electronAPI.onShowPersistentBubble((data) => {
           console.log('收到持久提醒:', data);
-          showPersistentBubble(data.title, data.content, data.type);
+          showPersistentBubble(data.title, data.content, data.type, data.eventId);
+        });
+      }
+
+      // 监听隐藏持久提醒
+      if (window.electronAPI.onHidePersistentBubble) {
+        window.electronAPI.onHidePersistentBubble(() => {
+          console.log('隐藏持久提醒');
+          hidePersistentBubble();
         });
       }
     }
@@ -420,10 +428,14 @@
      * @param {string} title - 标题
      * @param {string} content - HTML 内容
      * @param {string} type - 类型
+     * @param {string} eventId - 事件ID（用于关闭时通知主进程）
      */
-    function showPersistentBubble(title, content, type = 'reminder') {
+    function showPersistentBubble(title, content, type = 'reminder', eventId = null) {
       const bubble = document.getElementById('persistent-bubble');
       if (!bubble) return;
+
+      // 存储 eventId 到 DOM 元素
+      bubble.dataset.eventId = eventId || '';
 
       const icons = { reminder: '⏰', meeting: '📅', warning: '⚠️', info: 'ℹ️' };
       bubble.querySelector('.bubble-icon').textContent = icons[type] || '⏰';
@@ -438,11 +450,24 @@
      */
     function hidePersistentBubble() {
       const bubble = document.getElementById('persistent-bubble');
-      if (bubble) bubble.classList.add('hidden');
+      if (bubble) {
+        bubble.classList.add('hidden');
+        bubble.dataset.eventId = '';
+      }
     }
 
-    // 绑定关闭按钮事件
-    document.getElementById('bubble-close').addEventListener('click', hidePersistentBubble);
+    // 绑定关闭按钮事件（点击关闭时通知主进程）
+    document.getElementById('bubble-close').addEventListener('click', () => {
+      const bubble = document.getElementById('persistent-bubble');
+      const eventId = bubble?.dataset?.eventId;
+
+      // 通知主进程用户手动关闭了提醒
+      if (eventId && window.electronAPI.dismissReminder) {
+        window.electronAPI.dismissReminder(eventId);
+      }
+
+      hidePersistentBubble();
+    });
 
     // ========== 启动系统 ==========
 

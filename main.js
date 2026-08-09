@@ -949,6 +949,12 @@ ipcMain.handle('open-external', async (event, url) => {
   return { success: true };
 });
 
+// 关闭提醒（用户手动点击关闭按钮）
+ipcMain.handle('dismiss-reminder', (event, { eventId }) => {
+  reminderManager.dismissReminder(eventId);
+  return { success: true };
+});
+
 // ========== 桌面宠物 IPC 处理器 ==========
 
 // 获取屏幕尺寸

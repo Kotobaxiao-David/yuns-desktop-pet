@@ -1,6 +1,7 @@
 /**
  * 提醒管理器
  * 负责调度日历提醒、触发通知和气泡
+ * 支持持久提醒：从提醒时间到会议结束持续显示，用户可手动关闭
  */
 
 const store = require('../store');
@@ -8,8 +9,13 @@ const store = require('../store');
 class ReminderManager {
   constructor(calendarService) {
     this.calendarService = calendarService;
-    // 已通知的事件ID集合，避免重复通知
-    this.notifiedEvents = new Set();
+
+    // 活跃提醒（正在显示的）: eventId → { event, endTime }
+    this.activeReminders = new Map();
+
+    // 已关闭的提醒（用户手动关闭的）: Set of eventIds
+    this.dismissedReminders = new Set();
+
     // 检查间隔（1分钟）
     this.checkInterval = 60000;
     // 检查定时器
@@ -75,6 +81,7 @@ class ReminderManager {
 
   /**
    * 检查是否有需要触发的提醒
+   * 核心逻辑：在"提醒时间 → 会议结束"窗口期内持续显示泡泡
    */
   checkReminders() {
     const config = store.getCalendarConfig();
@@ -86,25 +93,37 @@ class ReminderManager {
     const now = new Date();
 
     for (const event of upcoming) {
-      // 跳过已通知的事件
-      if (this.notifiedEvents.has(event.id)) {
-        continue;
-      }
-
-      // 计算提醒时间
-      const reminderMinutes = this.calculateReminderTime(event, config);
       const eventStart = new Date(event.start);
-      const minutesUntil = (eventStart - now) / 60000;
+      const eventEnd = new Date(event.end);
+      const reminderMinutes = this.calculateReminderTime(event, config);
+      const reminderTime = new Date(eventStart.getTime() - reminderMinutes * 60000);
 
-      // 如果距离事件开始时间 <= 提醒时间，且 > 0，则触发提醒
-      if (minutesUntil <= reminderMinutes && minutesUntil > 0) {
-        this.triggerReminder(event, Math.round(minutesUntil));
-        this.notifiedEvents.add(event.id);
+      // 判断是否在提醒窗口期内
+      const isInWindow = now >= reminderTime && now <= eventEnd;
+      // 判断是否已激活（正在显示）
+      const isActive = this.activeReminders.has(event.id);
+      // 判断是否已关闭（用户手动关闭）
+      const isDismissed = this.dismissedReminders.has(event.id);
+
+      if (isInWindow) {
+        // 在提醒窗口期内
+        if (!isActive && !isDismissed) {
+          // 新提醒，显示泡泡
+          console.log(`${this.logPrefix} 触发提醒: ${event.title}`);
+          this.showReminderBubble(event, eventEnd);
+          this.activeReminders.set(event.id, { event, endTime: eventEnd });
+        }
+        // 如果已激活或已关闭，不做任何事
+      } else if (isActive) {
+        // 会议已结束，隐藏泡泡
+        console.log(`${this.logPrefix} 会议结束，隐藏提醒: ${event.title}`);
+        this.hideReminderBubble(event.id);
+        this.activeReminders.delete(event.id);
       }
     }
 
-    // 清理已过期的通知记录
-    this.cleanupNotifiedEvents();
+    // 清理已过期的 dismissed 记录
+    this.cleanupDismissedReminders();
   }
 
   /**
@@ -123,39 +142,71 @@ class ReminderManager {
   }
 
   /**
-   * 触发提醒
+   * 显示提醒泡泡（持久显示，直到会议结束或用户关闭）
    * @param {Object} event - 事件对象
-   * @param {number} minutesUntil - 距离事件开始的分钟数
+   * @param {Date} endTime - 会议结束时间
    */
-  triggerReminder(event, minutesUntil) {
-    console.log(`${this.logPrefix} 触发提醒: ${event.title}`);
-
-    // 格式化时间
+  showReminderBubble(event, endTime) {
     const timeStr = this.formatTime(event.start);
-    const locationStr = event.location ? ` @ ${event.location}` : '';
+    const endStr = this.formatTime(endTime);
 
-    // 构建 HTML 内容（用于持久气泡）
+    // 构建 HTML 内容
     const content = `
       <div style="font-weight: bold; margin-bottom: 4px;">${event.title}</div>
-      <div>🕐 ${timeStr}</div>
+      <div>🕐 ${timeStr} - ${endStr}</div>
       ${event.location ? `<div>📍 ${event.location}</div>` : ''}
-      <div style="color: #FF9800; margin-top: 4px; font-weight: 500;">${minutesUntil}分钟后开始</div>
+      <div style="color: #FF9800; margin-top: 4px; font-weight: 500;">会议进行中</div>
     `;
 
-    // 1. 发送持久气泡（需要点击关闭）
+    // 发送持久气泡
     if (this.petWindow && !this.petWindow.isDestroyed()) {
       this.petWindow.webContents.send('show-persistent-bubble', {
         title: '会议提醒',
         content: content,
-        type: 'meeting'
+        type: 'meeting',
+        eventId: event.id
       });
     }
 
-    // 2. 发送系统通知
+    // 发送系统通知
     this.sendNotification(
-      `会议提醒: ${event.title}`,
-      `${timeStr} ${locationStr}\n${minutesUntil}分钟后开始`
+      `会议开始: ${event.title}`,
+      `${timeStr} - ${endStr}${event.location ? ` @ ${event.location}` : ''}`
     );
+  }
+
+  /**
+   * 隐藏提醒泡泡
+   * @param {string} eventId - 事件ID
+   */
+  hideReminderBubble(eventId) {
+    if (this.petWindow && !this.petWindow.isDestroyed()) {
+      this.petWindow.webContents.send('hide-persistent-bubble', { eventId });
+    }
+  }
+
+  /**
+   * 关闭提醒（用户手动点击关闭按钮）
+   * @param {string} eventId - 事件ID
+   */
+  dismissReminder(eventId) {
+    console.log(`${this.logPrefix} 用户关闭提醒: ${eventId}`);
+    this.dismissedReminders.add(eventId);
+    this.activeReminders.delete(eventId);
+    this.hideReminderBubble(eventId);
+  }
+
+  /**
+   * 清理已过期的 dismissed 记录（会议结束后移除）
+   */
+  cleanupDismissedReminders() {
+    const now = new Date();
+    for (const eventId of this.dismissedReminders) {
+      const event = this.calendarService.events.find(e => e.id === eventId);
+      if (event && new Date(event.end) < now) {
+        this.dismissedReminders.delete(eventId);
+      }
+    }
   }
 
   /**
@@ -172,7 +223,6 @@ class ReminderManager {
 
       notification.onclick = () => {
         console.log(`${this.logPrefix} 用户点击了通知`);
-        // 可以在这里打开日历窗口或聚焦应用
       };
 
       notification.show();
@@ -250,30 +300,6 @@ class ReminderManager {
     if (now.getHours() === targetHour && now.getMinutes() === targetMinute) {
       console.log(`${this.logPrefix} 到达每日摘要时间，显示今日日程`);
       this.showDailySummary();
-    }
-  }
-
-  /**
-   * 清理已过期的通知记录
-   */
-  cleanupNotifiedEvents() {
-    const now = new Date();
-    const oneHourAgo = new Date(now.getTime() - 3600000);
-
-    // 遍历已通知事件，移除超过1小时的
-    for (const eventId of this.notifiedEvents) {
-      // 这里简化处理，直接清除所有已通知事件
-      // 实际可以从事件列表中查找事件结束时间
-      // 为简单起见，我们每小时清理一次
-      if (this._lastCleanup && (now - this._lastCleanup) > 3600000) {
-        this.notifiedEvents.clear();
-        this._lastCleanup = now;
-        break;
-      }
-    }
-
-    if (!this._lastCleanup) {
-      this._lastCleanup = now;
     }
   }
 

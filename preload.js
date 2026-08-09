@@ -451,9 +451,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('show-persistent-bubble', (event, data) => callback(data));
   },
 
+  // 监听隐藏持久提醒事件
+  onHidePersistentBubble: (callback) => {
+    ipcRenderer.on('hide-persistent-bubble', (event, data) => callback(data));
+  },
+
+  // 关闭提醒（用户手动点击关闭按钮）
+  dismissReminder: async (eventId) => {
+    return await ipcRenderer.invoke('dismiss-reminder', { eventId });
+  },
+
   // 移除持久提醒监听
   removePersistentBubbleListener: () => {
     ipcRenderer.removeAllListeners('show-persistent-bubble');
+    ipcRenderer.removeAllListeners('hide-persistent-bubble');
   },
 
   // ========== 系统 API ==========
