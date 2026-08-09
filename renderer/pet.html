@@ -454,9 +454,9 @@
       bubble.classList.remove('hidden');
       console.log('✅ 泡泡已显示');
 
-      // 调整窗口高度以显示泡泡（窗口向上扩展）
+      // 调整窗口大小以显示泡泡（宽度扩展，高度向上扩展）
       if (window.electronAPI.resizePetWindow) {
-        window.electronAPI.resizePetWindow(280);
+        window.electronAPI.resizePetWindow(300, 280);
       }
     }
 
@@ -470,9 +470,9 @@
         bubble.dataset.eventId = '';
       }
 
-      // 恢复窗口高度
+      // 恢复窗口大小
       if (window.electronAPI.resizePetWindow) {
-        window.electronAPI.resizePetWindow(128);
+        window.electronAPI.resizePetWindow(128, 128);
       }
     }
 

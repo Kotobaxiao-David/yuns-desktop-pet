@@ -972,19 +972,22 @@ ipcMain.handle('update-refresh-interval', (event, { minutes }) => {
 });
 
 // 调整宠物窗口大小（显示/隐藏泡泡时）
-ipcMain.handle('resize-pet-window', (event, { height }) => {
+ipcMain.handle('resize-pet-window', (event, { width, height }) => {
   if (petWindow && !petWindow.isDestroyed()) {
     const [currentX, currentY] = petWindow.getPosition();
     const currentBounds = petWindow.getBounds();
 
-    // 计算新的 y 位置，保持窗口底部不动，向上扩展
-    const newY = currentY - (height - currentBounds.height);
+    // 计算新的位置：保持底部不动，向上扩展；保持中心不动，向两边扩展
+    const newWidth = width || currentBounds.width;
+    const newHeight = height || currentBounds.height;
+    const newX = currentX - Math.round((newWidth - currentBounds.width) / 2);
+    const newY = currentY - (newHeight - currentBounds.height);
 
     petWindow.setBounds({
-      x: currentX,
+      x: newX,
       y: newY,
-      width: currentBounds.width,
-      height: height
+      width: newWidth,
+      height: newHeight
     });
   }
   return { success: true };
