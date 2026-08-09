@@ -60,7 +60,9 @@ const store = new Store({
       // 今日日程提醒时间（HH:mm）
       dailySummaryTime: '09:00',
       // 是否显示已过期事件
-      showPastEvents: false
+      showPastEvents: false,
+      // 自动刷新间隔（分钟），默认5分钟
+      refreshIntervalMinutes: 5
     }
   }
 });

@@ -4,6 +4,7 @@
  * 支持持久提醒：从提醒时间到会议结束持续显示，用户可手动关闭
  */
 
+const { Notification } = require('electron');
 const store = require('../store');
 
 class ReminderManager {

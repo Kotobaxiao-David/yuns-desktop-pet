@@ -12,8 +12,8 @@ class CalendarService {
   constructor() {
     // 缓存的事件数据
     this.events = [];
-    // 刷新间隔（1小时）
-    this.refreshInterval = 3600000;
+    // 默认刷新间隔（5分钟）
+    this.refreshInterval = 300000;
     // 刷新定时器
     this.refreshTimer = null;
     // 日志前缀
@@ -282,9 +282,15 @@ class CalendarService {
 
   /**
    * 启动自动刷新
+   * 从配置中读取用户设置的刷新间隔
    */
   startAutoRefresh() {
-    console.log(`${this.logPrefix} 启动自动刷新，间隔 ${this.refreshInterval / 1000} 秒`);
+    // 读取用户配置的刷新间隔（分钟），默认5分钟
+    const config = store.getCalendarConfig();
+    const refreshMinutes = config.refreshIntervalMinutes || 5;
+    this.refreshInterval = refreshMinutes * 60 * 1000;
+
+    console.log(`${this.logPrefix} 启动自动刷新，间隔 ${refreshMinutes} 分钟`);
 
     // 立即刷新一次
     this.refreshAll().catch(err => {
@@ -297,6 +303,23 @@ class CalendarService {
         console.error(`${this.logPrefix} 定时刷新失败:`, err.message);
       });
     }, this.refreshInterval);
+  }
+
+  /**
+   * 更新刷新间隔（用户修改设置时调用）
+   * @param {number} minutes - 刷新间隔（分钟）
+   */
+  updateRefreshInterval(minutes) {
+    console.log(`${this.logPrefix} 更新刷新间隔为 ${minutes} 分钟`);
+
+    // 停止旧的定时器
+    this.stopAutoRefresh();
+
+    // 更新间隔
+    this.refreshInterval = minutes * 60 * 1000;
+
+    // 重新启动自动刷新
+    this.startAutoRefresh();
   }
 
   /**

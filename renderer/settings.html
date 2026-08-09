@@ -530,6 +530,21 @@
               </div>
               <input type="time" id="daily-summary-time" value="09:00" class="setting-input">
             </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <label>自动刷新间隔</label>
+                <p class="setting-desc">多久从服务器拉取一次最新日程</p>
+              </div>
+              <select id="refresh-interval-select" class="setting-select">
+                <option value="1">1 分钟</option>
+                <option value="2">2 分钟</option>
+                <option value="5" selected>5 分钟（默认）</option>
+                <option value="10">10 分钟</option>
+                <option value="15">15 分钟</option>
+                <option value="30">30 分钟</option>
+                <option value="60">1 小时</option>
+              </select>
+            </div>
           </div>
 
           <!-- 今日日程预览 -->

@@ -419,6 +419,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return await ipcRenderer.invoke('refresh-calendar');
   },
 
+  // 更新刷新间隔
+  updateRefreshInterval: async (minutes) => {
+    return await ipcRenderer.invoke('update-refresh-interval', { minutes });
+  },
+
   // 显示今日日程摘要
   showDailySummary: async () => {
     return await ipcRenderer.invoke('show-daily-summary');

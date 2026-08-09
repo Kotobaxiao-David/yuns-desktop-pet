@@ -1900,6 +1900,11 @@ async function loadCalendarConfig() {
     if (dailySummaryTimeInput) {
       dailySummaryTimeInput.value = calendarConfig.dailySummaryTime || '09:00';
     }
+    // 加载刷新间隔设置
+    const refreshIntervalSelect = document.getElementById('refresh-interval-select');
+    if (refreshIntervalSelect) {
+      refreshIntervalSelect.value = (calendarConfig.refreshIntervalMinutes || 5).toString();
+    }
 
     renderCalendarConnections();
     loadTodayEvents();
@@ -2007,6 +2012,21 @@ function bindCalendarEvents() {
     await window.electronAPI.saveCalendarConfig({ dailySummaryTime: time });
     calendarConfig.dailySummaryTime = time;
     showToast('✅ 每日摘要时间已保存', 'success');
+  });
+
+  // 自动刷新间隔
+  const refreshIntervalSelect = document.getElementById('refresh-interval-select');
+  refreshIntervalSelect?.addEventListener('change', async () => {
+    const minutes = parseInt(refreshIntervalSelect.value);
+    await window.electronAPI.saveCalendarConfig({ refreshIntervalMinutes: minutes });
+    calendarConfig.refreshIntervalMinutes = minutes;
+
+    // 通知主进程更新刷新间隔
+    if (window.electronAPI.updateRefreshInterval) {
+      await window.electronAPI.updateRefreshInterval(minutes);
+    }
+
+    showToast(`✅ 刷新间隔已更新为 ${minutes} 分钟`, 'success');
   });
 
   // 刷新按钮

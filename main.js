@@ -924,6 +924,10 @@ ipcMain.handle('delete-calendar-connection', async (event, { id }) => {
 ipcMain.handle('refresh-calendar', async () => {
   try {
     const events = await calendarService.refreshAll();
+
+    // 刷新后立即检查提醒
+    reminderManager.checkReminders();
+
     return { success: true, eventCount: events.length };
   } catch (error) {
     console.error('刷新日历失败:', error.message);
@@ -952,6 +956,12 @@ ipcMain.handle('open-external', async (event, url) => {
 // 关闭提醒（用户手动点击关闭按钮）
 ipcMain.handle('dismiss-reminder', (event, { eventId }) => {
   reminderManager.dismissReminder(eventId);
+  return { success: true };
+});
+
+// 更新刷新间隔
+ipcMain.handle('update-refresh-interval', (event, { minutes }) => {
+  calendarService.updateRefreshInterval(minutes);
   return { success: true };
 });
 
