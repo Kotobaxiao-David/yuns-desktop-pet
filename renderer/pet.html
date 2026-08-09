@@ -211,54 +211,16 @@
       }
     }
 
-    // 调度下一个动作
+    // 调度下一个动作（固定位置，不移动）
     function scheduleNextAction() {
-      const action = Math.random() > 0.4 ? 'move' : 'idle';
-
-      if (action === 'move') {
-        isMoving = true;
-        moveDuration = 3000 + Math.random() * 5000;
-        moveDirection = Math.random() > 0.5 ? 1 : -1;
-        animator.setState('walk');
-        animator.direction = moveDirection;
-      } else {
-        isMoving = false;
-        idleDuration = 2000 + Math.random() * 4000;
-        animator.setState('idle');
-      }
-
+      isMoving = false;
+      animator.setState('idle');
       stateTimer = 0;
     }
 
-    // 更新闲逛位置
+    // 更新动画状态（固定位置，只更新动画）
     function updateRoaming() {
-      stateTimer += 16; // ~60fps
-
-      if (!isDragging && isMoving) {
-        petX += moveSpeed * moveDirection;
-
-        // 边界检测
-        if (petX <= 0) {
-          petX = 0;
-          moveDirection = 1;
-          animator.direction = 1;
-        } else if (petX >= screenWidth - 128) {
-          petX = screenWidth - 128;
-          moveDirection = -1;
-          animator.direction = -1;
-        }
-
-        updateWindowPosition();
-
-        if (stateTimer >= moveDuration) {
-          scheduleNextAction();
-        }
-      } else if (!isDragging && !isMoving) {
-        if (stateTimer >= idleDuration) {
-          scheduleNextAction();
-        }
-      }
-
+      // 固定位置，不移动
       requestAnimationFrame(updateRoaming);
     }
 
