@@ -37,7 +37,7 @@
 - 一键查看所有会议
 
 **设置指引**
-- 飞书/钉钉官方 CalDAV 配置指引
+- (飞书)[https://www.feishu.cn/hc/zh-CN/articles/360043178673-%E8%AE%BE%E7%BD%AE%E6%9C%AC%E5%9C%B0%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%8E%86%E4%B8%8E%E9%A3%9E%E4%B9%A6%E6%97%A5%E5%8E%86%E4%B9%8B%E9%97%B4%E7%9A%84%E5%90%8C%E6%AD%A5]/(钉钉)[https://alidocs.dingtalk.com/i/p/Y7kmbokZp3pgGLq2/docs/jkB7yl4ZK3vV6qvBNMZgWPMX2O6oxqw0]官方 CalDAV 配置指引
 
 ---
 
