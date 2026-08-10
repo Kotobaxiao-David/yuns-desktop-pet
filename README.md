@@ -67,20 +67,20 @@
 
 ---
 
-### 🤖 多模型AI对话（支持 10+ 提供商）
+### 🤖 多模型AI对话（支持 9 个提供商，50+ 模型）
 
 **国际服务**
-- **DeepSeek** - DeepSeek-V3 Chat、DeepSeek-R1 推理模型
-- **Google Gemini** - Gemini 3 Pro/Flash、Gemini 2.5 系列（最新）
-- **OpenAI** - GPT-4o、o1/o3 推理系列
-- **Anthropic Claude** - Claude Sonnet 4、Claude 3.5 系列
-- **Groq** - Llama 3.3 70B（免费高速推理）
+- **OpenAI** - GPT-5、GPT-4.1、GPT-4o、o3-pro、o4-mini 推理系列
+- **Anthropic Claude** - Claude Opus 5、Claude Sonnet 5、Claude Sonnet 4.6
+- **Google Gemini** - Gemini 3.5 Flash、Gemini 3 Pro、Gemini 2.5 系列
+- **DeepSeek** - DeepSeek V4 Flash、DeepSeek V4 Pro
+- **Groq** - Llama 3.3 70B、Qwen3.6 27B（免费高速推理）
 
 **国内服务**
-- **智谱 GLM** - GLM-4 Plus、GLM-4V 视觉模型
-- **月之暗面 Kimi** - Moonshot v1 系列（128K 超长上下文）
+- **智谱 GLM** - GLM-5、GLM-5.1、GLM-5.2、GLM-5V Turbo
+- **月之暗面 Kimi** - Kimi K3、K2.7 Code、K2.6、K2.5
 - **零一万物 Yi** - Yi Lightning、Yi Large
-- **硅基流动** - Qwen2.5、DeepSeek-V3 托管版
+- **硅基流动** - Qwen3.5 27B、GLM-5、DeepSeek-V4 托管版
 
 **其他**
 - **自定义 API** - 支持任何 OpenAI 兼容接口，可手动输入模型 ID
@@ -178,15 +178,15 @@ npm run build:portable
 
 | 提供商 | 默认 API 地址 | 推荐模型 |
 |-------|-------------|---------|
-| DeepSeek | `https://api.deepseek.com/v1/chat/completions` | deepseek-chat, deepseek-reasoner |
-| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/models` | gemini-3-pro-preview, gemini-2.5-flash |
-| OpenAI | `https://api.openai.com/v1/chat/completions` | gpt-4o, o1, o3-mini |
-| Anthropic Claude | `https://api.anthropic.com/v1/messages` | claude-sonnet-4, claude-3-5-sonnet |
+| DeepSeek | `https://api.deepseek.com/v1/chat/completions` | deepseek-v4-flash, deepseek-v4-pro |
+| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/models` | gemini-3.5-flash, gemini-2.5-pro |
+| OpenAI | `https://api.openai.com/v1/chat/completions` | gpt-5, gpt-4.1, o3-pro |
+| Anthropic Claude | `https://api.anthropic.com/v1/messages` | claude-sonnet-5, claude-opus-5 |
 | Groq (免费) | `https://api.groq.com/openai/v1/chat/completions` | llama-3.3-70b-versatile |
-| 智谱 GLM | `https://open.bigmodel.cn/api/paas/v4/chat/completions` | glm-4-plus, glm-4v-plus |
-| 月之暗面 Kimi | `https://api.moonshot.cn/v1/chat/completions` | moonshot-v1-128k |
+| 智谱 GLM | `https://open.bigmodel.cn/api/paas/v4/chat/completions` | glm-5, glm-5.2 |
+| 月之暗面 Kimi | `https://api.moonshot.cn/v1/chat/completions` | kimi-k3, kimi-k2.7-code |
 | 零一万物 Yi | `https://api.lingyiwanwu.com/v1/chat/completions` | yi-lightning, yi-large |
-| 硅基流动 | `https://api.siliconflow.cn/v1/chat/completions` | Qwen/Qwen2.5-72B-Instruct |
+| 硅基流动 | `https://api.siliconflow.cn/v1/chat/completions` | Qwen/Qwen3.5-27B, zai-org/GLM-5 |
 | 自定义 API | 自行配置 | 支持手动输入任意模型 ID |
 
 ### 网络代理配置
@@ -247,24 +247,29 @@ args: -y @anthropics/mcp-server-fetch
 ## 📁 项目结构
 
 ```
-project/
-├── main.js              # Electron 主进程
-├── preload.js           # 预加载脚本
-├── config.js            # 应用配置（模型、窗口等）
-├── store.js             # 数据持久化
-├── api-service.js       # AI API 调用服务
-├── mcp-client.js        # MCP 客户端管理
-├── proxy-server.js      # Gemini API 中转站
-├── proxy-key-manager.js # API Key 管理
-├── renderer/            # 渲染进程
-│   ├── pet.html         # 桌宠窗口
-│   ├── chat.html/js/css # 对话窗口
-│   ├── settings.html/js/css # 设置窗口
-│   └── friendly-messages.js # 友好提示
-├── assets/              # 资源文件
-│   ├── shiba.jpg        # 桌宠图片
-│   └── icon.png         # 应用图标
-└── dist/                # 构建输出
+├── main.js                    # Electron 主进程，IPC 处理
+├── preload.js                 # 预加载脚本，暴露 API
+├── config.js                  # 模型配置（9个提供商，50+模型）
+├── store.js                   # 数据持久化（electron-store）
+├── api-service.js             # AI API 调用服务
+├── mcp-client.js              # MCP 客户端管理
+├── proxy-server.js            # Gemini API 中转站
+├── proxy-key-manager.js       # API Key 管理
+├── renderer/
+│   ├── pet.html               # 桌宠窗口（Canvas 像素动画）
+│   ├── pet-animator.js        # 动画引擎
+│   ├── sprite-generator.js    # 角色像素数据 + 调色板
+│   ├── mood-system.js         # 心情系统（0-100）
+│   ├── dialogue-manager.js    # 对话气泡管理
+│   ├── calendar-service.js    # CalDAV/ICS 日历服务
+│   ├── reminder-manager.js    # 会议提醒管理
+│   ├── chat.html/js/css       # AI 对话窗口
+│   ├── settings.html/js/css   # 设置窗口
+│   └── friendly-messages.js   # 友好提示
+├── assets/
+│   └── icon.png               # 应用图标
+├── docs/                      # PRD、计划文档
+└── AGENTS.md                  # 开发指引
 ```
 
 ---
@@ -326,6 +331,8 @@ npm run menu:custom
 | electron-store | 数据持久化 |
 | @modelcontextprotocol/sdk | MCP 协议支持 |
 | express | 中转站服务器 |
+| tsdav | CalDAV 客户端（日历） |
+| node-ical | ICS 日历解析 |
 | electron-builder | 应用打包 |
 | https-proxy-agent | 网络代理支持 |
 
